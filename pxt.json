@@ -1,6 +1,6 @@
 {
     "name": "pxt-morse",
-    "version": "0.0.1",
+    "version": "0.0.0",
     "description": "Basic Morse Code Decoder Library",
     "license": "MIT",
     "dependencies": {
