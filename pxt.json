@@ -1,7 +1,7 @@
 {
     "name": "pxt-morse",
     "version": "0.0.1",
-    "description": "Basic Morse Code Decoder Library",
+    "description": "Morse Code Library",
     "license": "MIT",
     "dependencies": {
         "core": "*"
@@ -26,7 +26,7 @@
         "Bill Siever <bsiever@gmail.com>"
     ],
     "card": {
-        "name": "Additional Clicks",
+        "name": "Morse Code",
         "imageUrl": "file:../icon.png",
         "feedbackUrl": "http://siever.info"
     }
