@@ -6,9 +6,12 @@
 namespace morseDecoder {
 
 export enum Space {
-    Small = 0,
+    //% block="between letters"
     InterLetter = 3,
-    InterWord = 7
+    //% block="between words"
+    InterWord = 7,
+    //% block="dit space"
+    Small = 0,
 }
     
 const DIT = 1
@@ -19,16 +22,13 @@ const MAX_STATE = morseTree.length-1
 const START_STATE = 0
 const ERROR_CODE = '?'
 
-    type CodeHandler = (code: string) => void;
-    type ErrorHandler = () => void;
 // Current position in Morse tree
-
-    
 let state = START_STATE
-let errorHandler : ErrorHandler = null
-let codeSelectHandler : CodeHandler = null
+
+let errorHandler: () => void = null 
+let codeSelectHandler: (code: string) => void = null
     
-//% blockId=dot block="dit"
+//% blockId=dit block="dit"
 //% weight=500
 export function dit() {
     state = Math.min(2 * state + DIT, MAX_STATE)
@@ -39,7 +39,7 @@ export function dit() {
     }
 } 
     
-//% blockId=dot block="dah"
+//% blockId=dah block="dah"
 //% weight=400 
 export function dah() {
     state = Math.min(2 * state + DAH, MAX_STATE)
@@ -50,13 +50,14 @@ export function dah() {
     }
 } 
 
-//% blockId=dot block="reset"
+//% blockId=reset block="reset"
 //% weight=300 
 export function reset() {
     state = START_STATE
 }
     
-//% blockId=space block="space"
+//% blockId=space block="space $kind"
+//% kind.defl=Space.InterLetter
 //% weight=200 
 export function space(kind?: Space) {
     // Ignore small spaces
@@ -77,15 +78,16 @@ export function space(kind?: Space) {
     state = START_STATE
 }
       
-//% blockId=onCodeSelected block="on code selected"
-//% weight=100 
-export function onCodeSelected(handler: CodeHandler) {
+//% blockId=onCodeSelected block="on $code selected"
+//% draggableParameters
+//% weight=100
+export function onCodeSelected(handler: (code: string) => void) {
     codeSelectHandler = handler
 }
 
 //% blockId=onError block="on error"
 //% weight=50 
-export function onError(handler: ErrorHandler) {
+    export function onError(handler: () => void) {
     errorHandler = handler
 }
 
