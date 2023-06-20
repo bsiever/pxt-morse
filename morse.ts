@@ -14,8 +14,8 @@ export enum Space {
     Small = 0,
 }
     
-const DIT = 1
-const DAH = 2
+const DOT = 1
+const DASH = 2
     
 const morseTree = "?ETIANMSURWDKGOHVF?L?PJBXCYZQ??54?3???2??+????16=/?????7???8?90?"
 const MAX_STATE = morseTree.length-1
@@ -28,10 +28,10 @@ let state = START_STATE
 let errorHandler: () => void = null 
 let codeSelectHandler: (code: string) => void = null
     
-//% blockId=dit block="dit"
+//% blockId=dot block="dot"
 //% weight=500
-export function dit() {
-    state = Math.min(2 * state + DIT, MAX_STATE)
+export function dot() {
+    state = Math.min(2 * state + DOT, MAX_STATE)
     if (morseTree.charAt(state) == ERROR_CODE) {
         if (errorHandler != null) {
             errorHandler()
@@ -39,10 +39,10 @@ export function dit() {
     }
 } 
     
-//% blockId=dah block="dah"
+//% blockId=dash block="dash"
 //% weight=400 
-export function dah() {
-    state = Math.min(2 * state + DAH, MAX_STATE)
+export function dash() {
+    state = Math.min(2 * state + DASH, MAX_STATE)
     if(morseTree.charAt(state) == ERROR_CODE) {
         if (errorHandler != null) {
             errorHandler()
