@@ -1,167 +1,89 @@
-# Button Clicks
+```package
+pxt-morsedecoder=github:bsiever/pxt-morsedecoder
+```
 
-This extension expands the behaviors supported by the A & B buttons.  It supports (mutually exclusive) detection of a single click of a button, a double click of a button, or holding a button down. 
+# Morse Decoder
 
-These behave a lot like the touch screen, where the user can tap, double tap, or hold down.  
+This extension can decode dots/dashes of Morse Code. 
 
-They are different than ``[input.onButtonPressed()]``, which detects when a button is pressed.  When a button is "double clicked" would call the event handler twice. Holding a button would cause the event handler to be called once.  The basic eveng handler does not have an be easy way to distinguish between the three different types of behavior. 
-
-
-# Single Button Clicks
-
-```sig
-buttonClicks.onButtonSingleClicked(button: buttonClicks.AorB, body: Action) : void
-``` 
-
-Set the actions to do on a single click. 
-
-# Double Button Clicks
+# Dot 
 
 ```sig
-buttonClicks.onButtonDoubleClicked(button: buttonClicks.AorB, body: Action) : void
+morse.dot() : void
 ``` 
 
-Set the actions to do on a double click. 
+Register that a "dot" (dit) has happened.
 
-# Holding Buttons (Long Clicks)
+# Dash
 
 ```sig
-buttonClicks.onButtonHeld(button: buttonClicks.AorB, body: Action) : void
+morse.dash() : void
 ``` 
 
-Set the actions to do while the button is held down.
+Register that a "dash" (dah) has happened.
+
+# Reset 
+
+```sig
+morse.reset() : void
+``` 
+
+Reset dash/dot processing. That is, start at the beginning as though nothing had been keyed in.
+
+
+# Space 
+
+```sig
+morse.space(kind?: morse.Space) : void
+``` 
+
+Register that a space between things has happened.  `morse.Space.Small` are "small spaces" used between dots and dashes and are ignored.  `morse.Space.InterLetter` and `morse.Space.InterWord` are spaces between letters (usually take the time of three dots) and words (usually takes the time of seven dots) and indicate that a character has been found / selected.
 
 ### ~alert
 
-# Holding a button down 
+# Spaces are needed
 
-Holding the button will cause this event to happen repeated while the button is held.  
+A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a letter. 
 
 ### ~
 
-
-
-# Button Down 
+# On Code Selected
 
 ```sig
-buttonClicks.onButtonDown(button: buttonClicks.AorB, body: Action) : void
+morse.onCodeSelected(handler: (code: string) => void) 
 ``` 
+A valid code has been selected (following a  `morse.Space.InterLetter` or a  `morse.Space.InterWord`)
 
-Set the actions to do when the button first makes contact when being pressed. This will run before other events, like single click, double click, and button held.
 
-
-# Button Up
+# On Error
 
 ```sig
-buttonClicks.onButtonUp(button: buttonClicks.AorB, body: Action) : void
+morse.onError(handler: () => void) 
 ``` 
 
-Set the actions to do when the button is released. This will run before before events, like single click, double click, and button held.
+The current pattern of dots/dashes does not result in a valid code letter. 
 
 # Example 
 
-The following program will show the behavior on both the LED grid and the serial console.  
-
-* The buttons that cause a click event will be shown at the top row of LEDs:
-  * Interaction with button A will be indicated with a single LED in the upper *left*.
-  * Interaction with button B will be indicated with a single LED in the upper *right*. 
-* The second row will show the up/down events briefly (it may be erased when other events happen)
-  * The left LED will toggle on/off when button A is pressed/released
-  * The right LED will toggle on/off when button A is pressed/released
-* The specific event will be indicated on the bottom row:
-  * A single click will be shown with a single LED on the bottom left. 
-  * A double click will be shown with a two LEDs on the bottom (leftmost and middle). 
-  * Holding a button will be shown by lighting all five LEDs.
+TODO: UPDATE THIS.
 
 ```block
 
-buttonClicks.onButtonSingleClicked(buttonClicks.AorB.B, function () {
-    serial.writeLine("B single")
-    basic.showLeds(`
-        . . . . #
-        . . . . .
-        . . . . .
-        . . . . .
-        # . . . .
-        `)
-    showClear()
+input.onButtonPressed(Button.A, function () {
+    morseDecoder.dot()
+    morseDecoder.dash()
+    morseDecoder.space(morseDecoder.Space.InterLetter)
+    
+    morseDecoder.dash()
+    morseDecoder.dash()
+    morseDecoder.dash()
+    morseDecoder.dash()
+    morseDecoder.dash()
+    morseDecoder.space(morseDecoder.Space.InterLetter)
 })
-buttonClicks.onButtonDown(buttonClicks.AorB.B, function () {
-    serial.writeLine("B down")
-    led.toggle(4, 1)
+morseDecoder.onCodeSelected(function (code) {
+    serial.writeLine("code=" + code)
 })
-buttonClicks.onButtonDoubleClicked(buttonClicks.AorB.A, function () {
-    serial.writeLine("A double")
-    basic.showLeds(`
-        # . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        # . # . .
-        `)
-    showClear()
-})
-buttonClicks.onButtonUp(buttonClicks.AorB.B, function () {
-    serial.writeLine("B up")
-    led.toggle(4, 1)
-})
-buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
-    serial.writeLine("A up")
-    led.toggle(0, 1)
-})
-function showClear () {
-    basic.pause(100)
-    basic.clearScreen()
-}
-buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
-    serial.writeLine("A down")
-    led.toggle(0, 1)
-})
-buttonClicks.onButtonHeld(buttonClicks.AorB.B, function () {
-    serial.writeLine("B held")
-    basic.showLeds(`
-        . . . . #
-        . . . . .
-        . . . . .
-        . . . . .
-        # # # # #
-        `)
-    showClear()
-})
-buttonClicks.onButtonSingleClicked(buttonClicks.AorB.A, function () {
-    serial.writeLine("A single")
-    basic.showLeds(`
-        # . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        # . . . .
-        `)
-    showClear()
-})
-buttonClicks.onButtonDoubleClicked(buttonClicks.AorB.B, function () {
-    serial.writeLine("B double")
-    basic.showLeds(`
-        . . . . #
-        . . . . .
-        . . . . .
-        . . . . .
-        # . # . .
-        `)
-    showClear()
-})
-buttonClicks.onButtonHeld(buttonClicks.AorB.A, function () {
-    serial.writeLine("A held")
-    basic.showLeds(`
-        # . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        # # # # #
-        `)
-    showClear()
-})
-basic.showIcon(IconNames.Heart)
 
 ```
 
@@ -170,11 +92,6 @@ basic.showIcon(IconNames.Heart)
 
 Icon based on [Font Awesome icon 0xF0A7](https://www.iconfinder.com/search?q=f0a7) SVG.
 
-This extension was partly imspired by a question from Daniel Gallichan on the micro:bit Slack forums.  I wanted this sort of behavior too, but Daniel's question made me think carefully about it.  
-
-Jonny Austin and Martin Williams provided guidance on additional features and a lot of pre-release cleanup.
-
-Thanks to Daniel, Jonny, and Martin!
 
 # Misc. 
 
@@ -184,9 +101,7 @@ I develop micro:bit extensions in my spare time to support activities I'm enthus
 
 for PXT/microbit
 
-```package
-microbit-pxt-clicks=github:bsiever/microbit-pxt-clicks
-```
+
 
 <script src="https://makecode.com/gh-pages-embed.js"></script>
 <script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
