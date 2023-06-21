@@ -1,10 +1,36 @@
 ```package
-pxt-morsedecoder=github:bsiever/pxt-morsedecoder
+pxt-morse=github:bsiever/pxt-morse
 ```
 
 # Morse Decoder
 
 This extension can decode dots/dashes of Morse Code. 
+
+# Key Down
+
+```sig
+morse.keyDown() : void
+``` 
+The Morse code key has been pressed.
+
+# Key Up
+
+```sig
+morse.keyUp() : void
+``` 
+The Morse code key has been released.
+
+# Set Dot Time / Timing 
+
+```sig 
+morse.setDotTime(time : number) : void
+```
+
+Set the time (in milliseconds) of a "dot". 
+* Dashes should be three times the length of a dot.
+* The time between consecutive symbols (dots or dashes) should be the same as the "dot time"
+* The time at the completion of a letter should be three times the dot time.
+* The time at the completion of a word should be at least seven times the dot time.
 
 # Dot 
 
@@ -50,18 +76,17 @@ A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a 
 # On Code Selected
 
 ```sig
-morse.onCodeSelected(handler: (code: string) => void) 
+morse.onCodeSelected(handler: (code: string, sequence: string) => void) 
 ``` 
-A valid code has been selected (following a  `morse.Space.InterLetter` or a  `morse.Space.InterWord`)
+A code has been selected (following a  `morse.Space.InterLetter` or a  `morse.Space.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (?).  `sequence` will be the sequence of dots and dashes in the code. 
 
-
-# On Error
+# Encoding text as Morse Code 
 
 ```sig
-morse.onError(handler: () => void) 
-``` 
+morse.encode(characters: string) : string 
+```
 
-The current pattern of dots/dashes does not result in a valid code letter. 
+The given string will be converted to a represntation of Morse code using dots (.), dashes (-), spaces indicatins gaps between the symbols for a letter, and tabs indicating the gaps between words.
 
 # Example 
 
