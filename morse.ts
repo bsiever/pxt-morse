@@ -1,7 +1,7 @@
 
 //% color=#cf64ed
 //% icon="\uf0a7"
-//% block="Morse Code Utilities"
+//% block="Morse Code"
 //% groups="['Advanced']"
 namespace morse {
 
@@ -66,11 +66,15 @@ namespace morse {
             const duration = now - keyDownEvent
             // TODO: Update to make durations more flexible
             if (duration > 0.5 * dotTime && duration < 1.5 * dotTime) {
+                serial.writeLine("dot")
                 dot()
             } else if (duration > 2.5 * dotTime && duration < 3.5 * dotTime) {
                 dash()
+                serial.writeLine("dash")
             } else {
                 // Invalid duration
+                serial.writeLine("bad duration")
+
             }
         }
         keyDownEvent = null
