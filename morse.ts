@@ -44,12 +44,18 @@ namespace morse {
         const now = control.millis()
         if (keyUpEvent != null) {
             const duration = now - keyUpEvent
-            if (duration > 2.5 * dotTime && duration < 3.5 * dotTime) {
+            if(duration > 5.5 * dotTime) {
+                // Shouldn't happen
                 space(Space.InterWord)
+                //serial.writeLine("KD-IWS")
+            } else 
+            if (duration > 2.5 * dotTime) {
+                space(Space.InterLetter)
+                //serial.writeLine("KD-ILS")
             }
-            keyUpEvent = null
         }
-        keyDownEvent = control.millis()
+        keyUpEvent = null
+        keyDownEvent = now
     }
 
     /**
@@ -59,37 +65,35 @@ namespace morse {
     //% weight=800 
     export function keyUp() {
         const now = control.millis()
-        keyUpEvent = now
 
         // Process how long the key was down 
         if (keyDownEvent != null) {
             const duration = now - keyDownEvent
             // TODO: Update to make durations more flexible
             if (duration > 0.5 * dotTime && duration < 1.5 * dotTime) {
-                serial.writeLine("dot")
+                //serial.writeLine("KU dot")
                 dot()
             } else if (duration > 2.5 * dotTime && duration < 3.5 * dotTime) {
                 dash()
-                serial.writeLine("dash")
+                //serial.writeLine("KU dash")
             } else {
                 // Invalid duration
-                serial.writeLine("bad duration")
+                //serial.writeLine("KU bad duration")
 
             }
         }
         keyDownEvent = null
+        keyUpEvent = now
     }
 
     /**
      * Reset processing of a dot/dash/space sequence
      */
-    //% blockId=reset block="reset"
+    //% blockId=reset block="reset code"
     //% weight=300 
-    export function reset() {
+    export function resetCode() {
         state = START_STATE
         sequence = ""
-        keyDownEvent = null
-        keyUpEvent = null
     }  
 
     /**
@@ -210,17 +214,24 @@ namespace morse {
             let code = morseTree.charAt(state)
             codeSelectHandler(code, sequence)
         }
-        reset()
+        // TODO: Review this reset and restting timing stuff
+        resetCode()
     }
 
 
     loops.everyInterval(UPDATE_INTERVAL, function () {
         // Check for spaces / dones (no key pressed for a bit)
-        if(keyUpEvent!=null && keyDownEvent==null) {
+        // TODO: Check the logic below
+        if(keyUpEvent!=null) {
             const now = control.millis()
             const duration = now - keyUpEvent
             if (duration > 6.5 * dotTime - UPDATE_INTERVAL) {
-                space(Space.InterWord)
+                // Weed out any start states / empty codes (blips)
+                if(state!=START_STATE) {
+                    //serial.writeLine("Q-IWS")
+                    space(Space.InterWord)
+                }
+                keyUpEvent = null
             }
         }
     })
