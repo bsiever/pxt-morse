@@ -2,25 +2,36 @@
 pxt-morse=github:bsiever/pxt-morse
 ```
 
+```package
+microbit-pxt-clicks=github:bsiever/microbit-pxt-clicks
+```
+
+
 # Morse Decoder
 
-This extension can decode dots/dashes of Morse Code. 
+This extension can decode and encode dots/dashes of Morse Code as well as manage the detection of keying in of Morse code. 
 
-# Key Down
+# Keying
+
+"Keying" refers to keying in the dots, dashes, and "spaces" (quiet periods).   
+
+
+
+## Key Down
 
 ```sig
 morse.keyDown() : void
 ``` 
 The Morse code key has been pressed.
 
-# Key Up
+## Key Up
 
 ```sig
 morse.keyUp() : void
 ``` 
 The Morse code key has been released.
 
-# Set Dot Time / Timing 
+## Set Dot Time / Timing 
 
 ```sig 
 morse.setDotTime(time : number) : void
@@ -32,9 +43,9 @@ Set the time (in milliseconds) of a "dot".
 * The time at the completion of a letter should be three times the dot time.
 * The time at the completion of a word should be at least seven times the dot time.
 
-Register that a "dash" (dah) has happened.
+Keying in requires timing withing 50% of a "Dot time" to be recognized.
 
-# Reset Key timing
+## Reset Key timing
 
 ```sig
 morse.resetKeyTiming() : void
@@ -42,7 +53,17 @@ morse.resetKeyTiming() : void
 
 Reset Timing of keying. May be needed if dot time is changed while in the midst of keying in a symbol. Resetting decoding may also be needed.
 
-# Dot 
+# Identifying when individual symbols are keyed In
+
+```
+morse.onNewSymbol(handler: (symbol: string) => void) : void 
+```
+
+The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or ` ` (space between dots/dashes), `\t` (space between words) or `\n` (end of word/sentence/transmission).
+
+# Decoding refers to decoding a sequence of dots, dashes, and silences into letters based on Morse code.
+
+## Dot 
 
 ```sig
 morse.dot() : void
@@ -50,7 +71,7 @@ morse.dot() : void
 
 Register that a "dot" (dit) has happened.
 
-# Dash
+## Dash
 
 ```sig
 morse.dash() : void
@@ -58,7 +79,7 @@ morse.dash() : void
 
 Register that a "dash" (dah) has happened.
 
-# Reset Decoding
+## Reset Decoding
 
 ```sig
 morse.resetDecoding() : void
@@ -66,8 +87,7 @@ morse.resetDecoding() : void
 
 Reset dash/dot processing. That is, start at the beginning as though nothing had been keyed in.
 
-
-# Space 
+## Space (silence)
 
 ```sig
 morse.space(kind?: morse.Space) : void
@@ -83,7 +103,7 @@ A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a 
 
 ### ~
 
-# On Code Selected
+## On Code Selected
 
 ```sig
 morse.onCodeSelected(handler: (code: string, sequence: string) => void) 
@@ -102,9 +122,9 @@ Unused codes include:
 * `.-.-` (Ä)
 * TODO: Complete.
 
+# Encoding refers to converting letters and spaces to Morse code.
 
-
-# Encoding text as Morse Code 
+## Encoding text as Morse Code 
 
 ```sig
 morse.encode(characters: string) : string 
@@ -112,34 +132,63 @@ morse.encode(characters: string) : string
 
 The given string will be converted to a represntation of Morse code using dots (.), dashes (-), spaces indicatins gaps between the symbols for a letter, and tabs indicating the gaps between words.
 
-# Example 
+# Examples
 
-TODO: UPDATE THIS.
+
+## Keying Trainer
+
+Here's a simple program that also uses the "Clicks" extension to help practice keying.  It will show a dot, dash, or icons for the different types of Morse code symbols and pauses. 
 
 ```block
-
-input.onButtonPressed(Button.A, function () {
-    morseDecoder.dot()
-    morseDecoder.dash()
-    morseDecoder.space(morseDecoder.Space.InterLetter)
-    
-    morseDecoder.dash()
-    morseDecoder.dash()
-    morseDecoder.dash()
-    morseDecoder.dash()
-    morseDecoder.dash()
-    morseDecoder.space(morseDecoder.Space.InterLetter)
+buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
+    morse.keyUp()
 })
-morseDecoder.onCodeSelected(function (code) {
-    serial.writeLine("code=" + code)
+morse.onNewSymbol(function (newSymbol) {
+    if (newSymbol == " ") {
+        basic.showIcon(IconNames.SmallSquare)
+    } else if (newSymbol == "&") {
+        basic.showIcon(IconNames.Yes)
+    } else if (newSymbol == "#") {
+        basic.showIcon(IconNames.No)
+    } else if (newSymbol == "-") {
+        basic.showLeds(`
+            . . . . .
+            . . . . .
+            # # # # #
+            . . . . .
+            . . . . .
+            `)
+    } else if (newSymbol == ".") {
+        basic.showLeds(`
+            . . . . .
+            . . . . .
+            . . # . .
+            . . . . .
+            . . . . .
+            `)
+    } else {
+        basic.showIcon(IconNames.Sad)
+    }
+    basic.pause(200)
+})
+buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
+    morse.keyDown()
 })
 
 ```
 
+# TODO / Examples
+
+TODO: Example of Decoding 
+TODO: Example of Encoding 
+TODO: Help text / linking
+
 
 # Acknowledgements 
 
-Icon based on [Font Awesome icon 0xF0A7](https://www.iconfinder.com/search?q=f0a7) SVG.
+This was inspired by the work of "grandpaBond" on the Micro:bit Developer Slack Forum, who created this fantastic example to help kids learn Morse Code: [https://makecode.microbit.org/24561-13529-14704-94719](https://makecode.microbit.org/24561-13529-14704-94719).
+
+Icon based on [Font Awesome icon 0xF141](https://www.iconfinder.com/search?q=f141) SVG.
 
 
 # Misc. 
@@ -149,8 +198,6 @@ I develop micro:bit extensions in my spare time to support activities I'm enthus
 ## Supported targets
 
 for PXT/microbit
-
-
 
 <script src="https://makecode.com/gh-pages-embed.js"></script>
 <script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>

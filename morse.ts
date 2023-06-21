@@ -1,6 +1,6 @@
 
-//% color=#cf64ed
-//% icon="\uf0a7"
+//% color=#6a8694
+//% icon="\uf141"
 //% block="Morse Code"
 //% groups="['Keying', 'Decoding', 'Encoding', 'Advanced']"
 namespace morse {
@@ -34,7 +34,7 @@ namespace morse {
     let keyUpEvent : number = null
 
     let codeSelectHandler: (code: string, sequence: string) => void = null
-
+    let symbolHandler: (sym: string) => void = null
     /**
      * The "key" to enter a Morse character has been pressed
      */
@@ -109,6 +109,18 @@ namespace morse {
         keyDownEvent = null
         keyUpEvent = null
     }
+    
+    /**
+     *  Respond to a new symbol
+     */
+    //% blockId=onNewSymbol block="on new $newSymbol entered"
+    //% group="Keying"
+    //% draggableParameters
+    //% weight=800
+    export function onNewSymbol(handler: (newSymbol: string) => void) {
+        symbolHandler = handler
+    }
+
 
     /**
      *  Respond to a completed character
@@ -132,6 +144,9 @@ namespace morse {
         if (sequence.length < MAX_SEQUENCE_LENGTH) {
             sequence += DOT_CHAR
         }
+        if(symbolHandler != null) {
+            symbolHandler(".")
+        }
     }
 
     /**
@@ -145,8 +160,10 @@ namespace morse {
         if (sequence.length < MAX_SEQUENCE_LENGTH) {
             sequence += DASH_CHAR
         }
+        if (symbolHandler != null) {
+            symbolHandler("-")
+        }
     }
-
 
     /**
      * Record a space of some sort (between characters or words)
@@ -156,6 +173,23 @@ namespace morse {
     //% group="Decoding"
     //% weight=700
     export function space(kind?: Space) {
+        if (symbolHandler != null) {
+            let sym = "?"
+            switch(kind) {
+                case null:
+                case Space.Small:
+                    sym = " "
+                    break
+                case Space.InterLetter:
+                    sym = "&"
+                    break
+                case Space.InterWord:
+                    sym = "#"
+                    break
+            }
+            symbolHandler(sym)
+        }
+
         // Ignore small spaces
         if (kind == null || kind == Space.Small) {
             return;
@@ -208,7 +242,7 @@ namespace morse {
 
     /**
      * Encode the given characters to morse code.
-     * @return string of dots, dashes, spaces (between chars), tabs (between words) and newlines.
+     * @return string of dots, dashes, spaces (between chars), # (between words) and newlines.
      */
     //% blockId=encode block="encode $characters to morse"
     //% group="Encoding"
@@ -219,14 +253,14 @@ namespace morse {
         for(let c of characters) {
             switch(c) {
                 case " ":
-                    result += "\t"
+                    result += "#"
                 break;
                 case "\n":
                     result += c
                 break;
                 default: 
                     // Space between any real characters
-                    if(lastC!=null && lastC!="\t" && lastC!="\n") {
+                    if(lastC!=null && lastC!=" " && lastC!="\n") {
                         result += " " 
                     }
                     result += encodeChar(c)
