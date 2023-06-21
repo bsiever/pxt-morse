@@ -2,7 +2,7 @@
 //% color=#cf64ed
 //% icon="\uf0a7"
 //% block="Morse Code"
-//% groups="['Advanced']"
+//% groups="['Keying', 'Decoding', 'Encoding', 'Advanced']"
 namespace morse {
 
     export enum Space {
@@ -23,7 +23,7 @@ namespace morse {
     const START_STATE = 0
     const ERROR_CODE = '?'
     const UPDATE_INTERVAL = 100 // ms to check for updates
-    const MAX_SEQUENCE_LENGTH = 5
+    const MAX_SEQUENCE_LENGTH = 6
 
     // Current position in Morse tree
     let state = START_STATE
@@ -39,7 +39,8 @@ namespace morse {
      * The "key" to enter a Morse character has been pressed
      */
     //% blockId=keyDown block="key down"
-    //% weight=900 
+    //% group="Keying"
+    //% weight=900
     export function keyDown() {
         const now = control.millis()
         if (keyUpEvent != null) {
@@ -62,7 +63,8 @@ namespace morse {
      * The "key" to enter a Morse character has been released
      */
     //% blockId=keyUp block="key up"
-    //% weight=800 
+    //% group="Keying"
+    //% weight=875
     export function keyUp() {
         const now = control.millis()
 
@@ -85,26 +87,98 @@ namespace morse {
         keyDownEvent = null
         keyUpEvent = now
     }
+    
+    /**
+     * Set the length of time for a "dot" in milliseconds (minimum is 100ms)
+     */
+    //% blockId=setDotTime block="set dot time to $time ms"
+    //% group="Keying"
+    //% weight=850
+    export function setDotTime(time: number) {
+        // Minimum time of 100ms
+        dotTime = Math.max(time, UPDATE_INTERVAL)
+    }
+
+    /**
+     * Reset timing for key up/down
+     */
+    //% blockId=reset block="reset key timing"
+    //% group="Keying"
+    //% weight=825
+    export function resetKeyTiming() {
+        keyDownEvent = null
+        keyUpEvent = null
+    }
+
+    /**
+     *  Respond to a completed character
+     */
+    //% blockId=onCodeSelected block="on $code ($sequence) selected"
+    //% group="Decoding"
+    //% draggableParameters
+    //% weight=775
+    export function onCodeSelected(handler: (code: string, sequence: string) => void) {
+        codeSelectHandler = handler
+    }
+
+    /**
+     * Record a complete dot
+     */
+    //% blockId=dot block="dot"
+    //% group="Decoding"
+    //% weight=750
+    export function dot() {
+        state = Math.min(2 * state + DOT, MAX_STATE)
+        if (sequence.length < MAX_SEQUENCE_LENGTH) {
+            sequence += DOT_CHAR
+        }
+    }
+
+    /**
+     * Record a complete dash
+     */
+    //% blockId=dash block="dash"
+    //% group="Decoding"
+    //% weight=725
+    export function dash() {
+        state = Math.min(2 * state + DASH, MAX_STATE)
+        if (sequence.length < MAX_SEQUENCE_LENGTH) {
+            sequence += DASH_CHAR
+        }
+    }
+
+
+    /**
+     * Record a space of some sort (between characters or words)
+     */
+    //% blockId=space block="space $kind"
+    //% kind.defl=Space.InterLetter
+    //% group="Decoding"
+    //% weight=700
+    export function space(kind?: Space) {
+        // Ignore small spaces
+        if (kind == null || kind == Space.Small) {
+            return;
+        }
+        // Process code
+        if (codeSelectHandler != null) {
+            let code = morseTree.charAt(state)
+            codeSelectHandler(code, sequence)
+        }
+        // TODO: Review this reset and restting timing stuff
+        resetDecoding()
+    }
 
     /**
      * Reset processing of a dot/dash/space sequence
      */
-    //% blockId=reset block="reset code"
-    //% weight=300 
-    export function resetCode() {
+    //% blockId=reset block="reset decoding"
+    //% group="Decoding"
+    //% weight=675
+    export function resetDecoding() {
         state = START_STATE
         sequence = ""
     }  
-
-    /**
-     *  Respond to a completed character
-     */      
-    //% blockId=onCodeSelected block="on $code ($sequence) selected"
-    //% draggableParameters
-    //% weight=100
-    export function onCodeSelected(handler: (code: string, sequence: string) => void) {
-        codeSelectHandler = handler
-    }
 
     // Find the code for a single character 
     // Length of string must be exactly 1
@@ -137,7 +211,8 @@ namespace morse {
      * @return string of dots, dashes, spaces (between chars), tabs (between words) and newlines.
      */
     //% blockId=encode block="encode $characters to morse"
-    //% weight=50 
+    //% group="Encoding"
+    //% weight=500
     export function encode(characters: string) : string {
         let result = ""
         let lastC = null
@@ -161,67 +236,8 @@ namespace morse {
         return result
     }
 
-    /**
-     * Set the length of time for a "dot" in milliseconds (minimum is 100ms)
-     */
-    //% blockId=setDotTime block="set dot time to $time ms"
-    //% weight=50 
-    export function setDotTime(time : number) {
-        // Minimum time of 100ms
-        dotTime = Math.max(time, UPDATE_INTERVAL)
-    }
-    /**
-     * Record a complete dot
-     */
-    //% blockId=dot block="dot"
-    //% group="Advanced"
-    //% weight=500
-    export function dot() {
-        state = Math.min(2 * state + DOT, MAX_STATE)
-        if (sequence.length < MAX_SEQUENCE_LENGTH) {
-            sequence += DOT_CHAR
-        }
-    }
-
-    /**
-     * Record a complete dash
-     */
-    //% blockId=dash block="dash"
-    //% group="Advanced"
-    //% weight=400 
-    export function dash() {
-        state = Math.min(2 * state + DASH, MAX_STATE)
-        if (sequence.length < MAX_SEQUENCE_LENGTH) {
-            sequence += DASH_CHAR
-        }
-    }
-
-
-    /**
-     * Record a space of some sort (between characters or words)
-     */
-    //% blockId=space block="space $kind"
-    //% kind.defl=Space.InterLetter
-    //% group="Advanced"
-    //% weight=200
-    export function space(kind?: Space) {
-        // Ignore small spaces
-        if (kind == null || kind == Space.Small) {
-            return;
-        }
-        // Process code
-        if (codeSelectHandler != null) {
-            let code = morseTree.charAt(state)
-            codeSelectHandler(code, sequence)
-        }
-        // TODO: Review this reset and restting timing stuff
-        resetCode()
-    }
-
-
     loops.everyInterval(UPDATE_INTERVAL, function () {
         // Check for spaces / dones (no key pressed for a bit)
-        // TODO: Check the logic below
         if(keyUpEvent!=null) {
             const now = control.millis()
             const duration = now - keyUpEvent

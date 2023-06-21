@@ -32,6 +32,16 @@ Set the time (in milliseconds) of a "dot".
 * The time at the completion of a letter should be three times the dot time.
 * The time at the completion of a word should be at least seven times the dot time.
 
+Register that a "dash" (dah) has happened.
+
+# Reset Key timing
+
+```sig
+morse.resetKeyTiming() : void
+``` 
+
+Reset Timing of keying. May be needed if dot time is changed while in the midst of keying in a symbol. Resetting decoding may also be needed.
+
 # Dot 
 
 ```sig
@@ -48,10 +58,10 @@ morse.dash() : void
 
 Register that a "dash" (dah) has happened.
 
-# Reset 
+# Reset Decoding
 
 ```sig
-morse.reset() : void
+morse.resetDecoding() : void
 ``` 
 
 Reset dash/dot processing. That is, start at the beginning as though nothing had been keyed in.
@@ -79,6 +89,20 @@ A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a 
 morse.onCodeSelected(handler: (code: string, sequence: string) => void) 
 ``` 
 A code has been selected (following a  `morse.Space.InterLetter` or a  `morse.Space.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (?).  `sequence` will be the sequence of dots and dashes in the code. 
+
+Note that several codes are unused by traditional Morse code.  In these cases the `code` will be `?` and the `sequence` will indicate the sequence of dots and dashes. 
+
+Unused codes include:
+* Any sequence of 6 dots/dashes. 
+* `...-.` (Verify)
+* `..-..` (É)
+* `..-.-` (PLS RPT)
+* `..--` (Ü), `..--.` (Ð)
+* `.-...` (Wait), `.-..-` (È)
+* `.-.-` (Ä)
+* TODO: Complete.
+
+
 
 # Encoding text as Morse Code 
 
