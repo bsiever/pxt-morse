@@ -1,9 +1,9 @@
 ```package
-pxt-morse=github:bsiever/pxt-morse
+morse=github:bsiever/pxt-morse
 ```
 
 ```package
-microbit-pxt-clicks=github:bsiever/microbit-pxt-clicks
+clicks=github:bsiever/microbit-pxt-clicks
 ```
 
 
@@ -47,10 +47,10 @@ Keying in requires timing within a sepcified error of the "Dot time" to be recog
 # Get the Dot Time
 
 ```sig 
-morse.dotTime() : number 
+morse.dotTime()
 ```
 
-Get the current dot time. 
+Provides the current dot time. 
 
 # Set the Dot Time Error
 
@@ -64,27 +64,27 @@ Set the dot time error (1-100%).
 
 
 ```sig 
-morse.getDotTimeError() : number 
+morse.getDotTimeError()
 ```
 
-Get the current dot time error. 
+Provides the current dot time error. 
 
 
 # Peek at the current Code 
 
 ```sig 
-morse.peekCode() : string
+morse.peekCode()
 ```
 
-Get the code described by the currently entered dots and dashes. 
+Provide the code described by the currently entered dots and dashes. 
 
 # Peek at the current sequence 
 
 ```sig 
-morse.peekSequence() : string
+morse.peekSequence()
 ```
 
-Get the sequence of dots and dashes that is currently entered. 
+Provide the sequence of dots and dashes that is currently entered. 
 
 
 ## Reset Key timing
@@ -98,10 +98,10 @@ Reset Timing of keying. May be needed if dot time is changed while in the midst 
 # Identifying when individual symbols are keyed In
 
 ```
-morse.onNewSymbol(handler: (symbol: string) => void) : void 
+morse.onNewSymbol(handler: (symbol: string) => void) 
 ```
 
-The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or ` ` (space between dots/dashes), `\t` (space between words) or `\n` (end of word/sentence/transmission).
+The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or ` ` (space between dots/dashes), `&` (space between words) or `#` (end of word/sentence/transmission).
 
 # Decoding refers to decoding a sequence of dots, dashes, and silences into letters based on Morse code.
 
