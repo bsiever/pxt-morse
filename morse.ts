@@ -354,5 +354,4 @@ namespace morse {
             }
         }
     })
-
 }

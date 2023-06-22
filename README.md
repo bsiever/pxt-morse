@@ -156,13 +156,8 @@ Note that several codes are unused by traditional Morse code.  In these cases th
 
 Unused codes include:
 * Any sequence of 6 dots/dashes. 
-* `...-.` (Verify)
-* `..-..` (É)
-* `..-.-` (PLS RPT)
-* `..--` (Ü), `..--.` (Ð)
-* `.-...` (Wait), `.-..-` (È)
-* `.-.-` (Ä)
-* TODO: Complete.
+* Four sequences of four symbols: `..--`, `.-.-`, `---.`, `----`
+* And several sequences of 5 symbols:  `...-.`, `..-..`, `..-.-`, `..--.`, `.-...`, `.-..-`, `.-.--`, `.--..`, `.--.-`, `.---.`, `-..--`, `-.-..`, `-.-.-`, `-.--.`, `-.---`, `--..-`, `--.-.`, `--.--`, `---.-`
 
 # Encoding refers to converting letters and spaces to Morse code.
 
