@@ -46,7 +46,7 @@ Keying in requires timing within a sepcified error of the "Dot time" to be recog
 
 # Get the Dot Time  #morse-dottime
 
-```sig 
+```sig
 morse.dotTime()
 ```
 
@@ -54,7 +54,7 @@ Provides the current dot time.
 
 # Set the Dot Time Error  #morse-setdottimeerror
 
-```sig 
+```sig
 morse.setDotTimeError(percent: number) : void 
 ```
 
@@ -62,7 +62,7 @@ Set the dot time error (1-100%).
 
 # Get the Dot Time Error  #morse-dottimeerror
 
-```sig 
+```sig
 morse.dotTimeError()
 ```
 
@@ -71,7 +71,7 @@ Provides the current dot time error as a percentage.
 
 # Peek at the current Code  #morse-peekcode
 
-```sig 
+```sig
 morse.peekCode()
 ```
 
@@ -79,7 +79,7 @@ Provide the code described by the currently entered dots and dashes.
 
 # Peek at the current sequence  #morse-peeksequence
 
-```sig 
+```sig
 morse.peekSequence()
 ```
 
@@ -96,8 +96,8 @@ Reset Timing of keying. May be needed if dot time is changed while in the midst 
 
 # Identifying when individual symbols are Keyed In  #morse-onnewsymbol
 
-```
-morse.onNewSymbol(handler: (symbol: string) => void) 
+```sig
+morse.onNewSymbol(handler: (symbol: string) => void)
 ```
 
 The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or ` ` (space between dots/dashes), `&` (space between words) or `#` (end of word/sentence/transmission).

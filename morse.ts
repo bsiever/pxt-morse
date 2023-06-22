@@ -106,9 +106,9 @@ namespace morse {
     /**
      * The length of time for a "dot" in milliseconds
      */
-    //% blockId=dotTime block="dot time ms" 
-    //% advanced=true
+    //% block="dot time (ms)" 
     //% group="Keying"
+    //% advanced=true
     //% weight=840
     export function dotTime() : number {
         // Minimum time of 100ms
@@ -131,7 +131,7 @@ namespace morse {
     /**
      * Percent of error allowed in "dot times"
      */
-    //% blockId=dotTime block="dot time error %"
+    //% blockId=dotTime block="dot time error \\%"
     //% group="Keying"
     //% advanced=true
     //% weight=820
@@ -150,7 +150,7 @@ namespace morse {
         keyDownEvent = null
         keyUpEvent = null
     }
-    
+
     /**
      *  Respond to a new symbol
      */
