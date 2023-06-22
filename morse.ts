@@ -28,13 +28,15 @@ namespace morse {
     // Current position in Morse tree
     let state = START_STATE
     let sequence = ""
+    let codeSelectHandler: (code: string, sequence: string) => void = null
 
-    let dotTime = 1000 // ms 
+    // State variables for timing of keying in new symbols
+    let _dotTime = 1000 // ms 
+    let _dotTimeAllowedError = 0.50 // % of dot-time +- expected values that's accepted. 
     let keyDownEvent : number = null
     let keyUpEvent : number = null
-
-    let codeSelectHandler: (code: string, sequence: string) => void = null
     let symbolHandler: (sym: string) => void = null
+
     /**
      * The "key" to enter a Morse character has been pressed
      */
@@ -45,12 +47,13 @@ namespace morse {
         const now = control.millis()
         if (keyUpEvent != null) {
             const duration = now - keyUpEvent
-            if(duration > 5.5 * dotTime) {
+            // Check for word spacing
+            if(duration > (7-_dotTimeAllowedError) * _dotTime) {
                 // Shouldn't happen
                 space(Space.InterWord)
                 //serial.writeLine("KD-IWS")
             } else 
-            if (duration > 2.5 * dotTime) {
+            if (duration > (3-_dotTimeAllowedError) * _dotTime) {
                 space(Space.InterLetter)
                 //serial.writeLine("KD-ILS")
             }
@@ -71,11 +74,10 @@ namespace morse {
         // Process how long the key was down 
         if (keyDownEvent != null) {
             const duration = now - keyDownEvent
-            // TODO: Update to make durations more flexible
-            if (duration > 0.5 * dotTime && duration < 1.5 * dotTime) {
+            if (duration > (1-_dotTimeAllowedError) * _dotTime && duration < (1+_dotTimeAllowedError) * _dotTime) {
                 //serial.writeLine("KU dot")
                 dot()
-            } else if (duration > 2.5 * dotTime && duration < 3.5 * dotTime) {
+            } else if (duration > (3-_dotTimeAllowedError) * _dotTime && duration < (3+_dotTimeAllowedError) * _dotTime) {
                 dash()
                 //serial.writeLine("KU dash")
             } else {
@@ -89,14 +91,52 @@ namespace morse {
     }
     
     /**
-     * Set the length of time for a "dot" in milliseconds (minimum is 100ms)
+     * Set the length of time for a "dot" in milliseconds (100ms-5000ms)
      */
-    //% blockId=setDotTime block="set dot time to $time ms"
+    //% blockId=setDotTime block="set dot time to $time ms" 
+    //% advanced=true
     //% group="Keying"
     //% weight=850
+    //% time.defl=1000 time.min=100 time.max=5000
     export function setDotTime(time: number) {
         // Minimum time of 100ms
-        dotTime = Math.max(time, UPDATE_INTERVAL)
+        _dotTime = Math.constrain(time, UPDATE_INTERVAL, 5000)
+    }
+
+    /**
+     * The length of time for a "dot" in milliseconds
+     */
+    //% blockId=dotTime block="dot time ms" 
+    //% advanced=true
+    //% group="Keying"
+    //% weight=840
+    export function dotTime() : number {
+        // Minimum time of 100ms
+        return _dotTime
+    }
+
+    /**
+     * Set the maximum allowed error in timing of "dot" times (1-100).
+     */
+    //% blockId=setDotTimeError block="set dot time error to ± $percent \\%"
+    //% advanced=true
+    //% percent.defl=50 percent.min=1 percent.max=100
+    //% group="Keying"
+    //% weight=830
+    export function setDotTimeError(percent: number) {
+        // Minimum time of 1%
+        _dotTimeAllowedError = Math.constrain(percent, 1, 100)/100.0
+    }
+
+    /**
+     * Percent of error allowed in "dot times"
+     */
+    //% blockId=dotTime block="dot time error %"
+    //% group="Keying"
+    //% advanced=true
+    //% weight=820
+    export function dotTimeError(): number {
+        return Math.round(_dotTimeAllowedError*100)
     }
 
     /**
@@ -104,6 +144,7 @@ namespace morse {
      */
     //% blockId=reset block="reset key timing"
     //% group="Keying"
+    //% advanced=true
     //% weight=825
     export function resetKeyTiming() {
         keyDownEvent = null
@@ -116,6 +157,7 @@ namespace morse {
     //% blockId=onNewSymbol block="on new $newSymbol entered"
     //% group="Keying"
     //% draggableParameters
+    //% advanced=true
     //% weight=800
     export function onNewSymbol(handler: (newSymbol: string) => void) {
         symbolHandler = handler
@@ -123,7 +165,7 @@ namespace morse {
 
 
     /**
-     *  Respond to a completed character
+     *  Respond to a completed code for a character
      */
     //% blockId=onCodeSelected block="on $code ($sequence) selected"
     //% group="Decoding"
@@ -138,6 +180,7 @@ namespace morse {
      */
     //% blockId=dot block="dot"
     //% group="Decoding"
+    //% advanced=true
     //% weight=750
     export function dot() {
         state = Math.min(2 * state + DOT, MAX_STATE)
@@ -154,6 +197,7 @@ namespace morse {
      */
     //% blockId=dash block="dash"
     //% group="Decoding"
+    //% advanced=true
     //% weight=725
     export function dash() {
         state = Math.min(2 * state + DASH, MAX_STATE)
@@ -171,6 +215,7 @@ namespace morse {
     //% blockId=space block="space $kind"
     //% kind.defl=Space.InterLetter
     //% group="Decoding"
+    //% advanced=true
     //% weight=700
     export function space(kind?: Space) {
         if (symbolHandler != null) {
@@ -199,7 +244,6 @@ namespace morse {
             let code = morseTree.charAt(state)
             codeSelectHandler(code, sequence)
         }
-        // TODO: Review this reset and restting timing stuff
         resetDecoding()
     }
 
@@ -208,11 +252,35 @@ namespace morse {
      */
     //% blockId=reset block="reset decoding"
     //% group="Decoding"
+    //% advanced=true
     //% weight=675
     export function resetDecoding() {
         state = START_STATE
         sequence = ""
     }  
+
+    /**
+       * Peek at the code that would be chosen from the current sequence if there is a sufficient space
+       */
+    //% blockId=peekCode block="peek current code"
+    //% group="Decoding"
+    //% advanced=true
+    //% weight=820
+    export function peekCode(): string {
+        return morseTree.charAt(state);
+    }
+
+    /**
+     * Peek at the sequence of dots/dashes that is currently entered. 
+     * 
+     */
+    //% blockId=peekSequence block="peek current sequence"
+    //% group="Decoding"
+    //% advanced=true
+    //% weight=810
+    export function peekSequence(): string {
+        return sequence;
+    }
 
     // Find the code for a single character 
     // Length of string must be exactly 1
@@ -275,7 +343,8 @@ namespace morse {
         if(keyUpEvent!=null) {
             const now = control.millis()
             const duration = now - keyUpEvent
-            if (duration > 6.5 * dotTime - UPDATE_INTERVAL) {
+            // Check for word completion
+            if (duration > (7-_dotTimeAllowedError) * _dotTime - UPDATE_INTERVAL) {
                 // Weed out any start states / empty codes (blips)
                 if(state!=START_STATE) {
                     //serial.writeLine("Q-IWS")
