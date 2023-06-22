@@ -16,21 +16,21 @@ This extension can decode and encode dots/dashes of Morse Code as well as manage
 "Keying" refers to keying in the dots, dashes, and "spaces" (quiet periods).   
 
 
-## Key Down
+## Key Down #morse-keydown
 
 ```sig
 morse.keyDown() : void
 ``` 
 The Morse code key has been pressed.
 
-## Key Up
+## Key Up  #morse-keyup
 
 ```sig
 morse.keyUp() : void
 ``` 
 The Morse code key has been released.
 
-## Set Dot Time / Timing 
+## Set Dot Time / Timing  #morse-setdottime
 
 ```sig 
 morse.setDotTime(time : number) : void
@@ -44,7 +44,7 @@ Set the time (in milliseconds) of a "dot".
 
 Keying in requires timing within a sepcified error of the "Dot time" to be recognized.
 
-# Get the Dot Time
+# Get the Dot Time  #morse-dottime
 
 ```sig 
 morse.dotTime()
@@ -52,25 +52,24 @@ morse.dotTime()
 
 Provides the current dot time. 
 
-# Set the Dot Time Error
+# Set the Dot Time Error  #morse-setdottimeerror
 
 ```sig 
-morse.setDotTime(percent: number) : void 
+morse.setDotTimeError(percent: number) : void 
 ```
 
 Set the dot time error (1-100%). 
 
-# Get the Dot Time Error
-
+# Get the Dot Time Error  #morse-dottimeerror
 
 ```sig 
-morse.getDotTimeError()
+morse.dotTimeError()
 ```
 
-Provides the current dot time error. 
+Provides the current dot time error as a percentage. 
 
 
-# Peek at the current Code 
+# Peek at the current Code  #morse-peekcode
 
 ```sig 
 morse.peekCode()
@@ -78,7 +77,7 @@ morse.peekCode()
 
 Provide the code described by the currently entered dots and dashes. 
 
-# Peek at the current sequence 
+# Peek at the current sequence  #morse-peeksequence
 
 ```sig 
 morse.peekSequence()
@@ -87,7 +86,7 @@ morse.peekSequence()
 Provide the sequence of dots and dashes that is currently entered. 
 
 
-## Reset Key timing
+## Reset Key timing  #morse-resetkeytiming
 
 ```sig
 morse.resetKeyTiming() : void
@@ -95,7 +94,7 @@ morse.resetKeyTiming() : void
 
 Reset Timing of keying. May be needed if dot time is changed while in the midst of keying in a symbol. Resetting decoding may also be needed.
 
-# Identifying when individual symbols are keyed In
+# Identifying when individual symbols are Keyed In  #morse-onnewsymbol
 
 ```
 morse.onNewSymbol(handler: (symbol: string) => void) 
@@ -105,7 +104,7 @@ The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`,
 
 # Decoding refers to decoding a sequence of dots, dashes, and silences into letters based on Morse code.
 
-## Dot 
+## Dot  #morse-dot
 
 ```sig
 morse.dot() : void
@@ -113,7 +112,7 @@ morse.dot() : void
 
 Register that a "dot" (dit) has happened.
 
-## Dash
+## Dash #morse-dash
 
 ```sig
 morse.dash() : void
@@ -121,7 +120,7 @@ morse.dash() : void
 
 Register that a "dash" (dah) has happened.
 
-## Reset Decoding
+## Reset Decoding  #morse-resetdecoding
 
 ```sig
 morse.resetDecoding() : void
@@ -129,7 +128,7 @@ morse.resetDecoding() : void
 
 Reset dash/dot processing. That is, start at the beginning as though nothing had been keyed in.
 
-## Space (silence)
+## Space (silence)  #morse-space
 
 ```sig
 morse.space(kind?: morse.Space) : void
@@ -145,7 +144,7 @@ A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a 
 
 ### ~
 
-## On Code Selected
+## On Code Selected  #morse-oncodeselected
 
 ```sig
 morse.onCodeSelected(handler: (code: string, sequence: string) => void) 
@@ -161,7 +160,7 @@ Unused codes include:
 
 # Encoding refers to converting letters and spaces to Morse code.
 
-## Encoding text as Morse Code 
+## Encoding text as Morse Code   #morse-encode
 
 ```sig
 morse.encode(characters: string) : string 
@@ -300,11 +299,6 @@ basic.forever(function () {
 })
 
 ```
-
-# TODO / Examples
-
-TODO: Help text / linking
-
 
 # Acknowledgements 
 
