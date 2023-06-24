@@ -6,15 +6,21 @@ morse=github:bsiever/pxt-morse
 clicks=github:bsiever/microbit-pxt-clicks
 ```
 
-
 # Morse Decoder
 
 This extension can decode and encode dots/dashes of Morse Code as well as manage the detection of keying in of Morse code. 
 
-# Keying
+* There are three major components to this extension:
+  * [Keying](#morse-keying) in Morse code, which requires precise timing of pressing and releasing the "key". 
+  * [Decoding](#morse-decoding) a sequence of key presses (dots, dashes and spaces) into a symbol (letter) based on Morse code. 
+  * [Encoding](#morse-encoding) a sequence of letters into symbols that represent the sequence of key presses (and spaces) needed to send those letters via Morse code.
+
+# Keying #morse-keying
 
 "Keying" refers to keying in the dots, dashes, and "spaces" (quiet periods).   
+Here "keying" in codes with key up and key down will automatically start processing the keys.
 
+Keying with the built-in buttons may be easier if the [Button Clicks](https://makecode.microbit.org/pkg/bsiever/microbit-pxt-clicks) extension's `on button down` and `on button up` blocks are used.
 
 ## Key Down #morse-keydown
 
@@ -44,7 +50,7 @@ Set the time (in milliseconds) of a "dot".
 
 Keying in requires timing within a sepcified error of the "Dot time" to be recognized.
 
-# Get the Dot Time  #morse-dottime
+## Get the Dot Time  #morse-dottime
 
 ```sig
 morse.dotTime()
@@ -52,7 +58,7 @@ morse.dotTime()
 
 Provides the current dot time. 
 
-# Set the Dot Time Error  #morse-setdottimeerror
+## Set the Dot Time Error  #morse-setdottimeerror
 
 ```sig
 morse.setDotTimeError(percent: number) : void 
@@ -60,7 +66,7 @@ morse.setDotTimeError(percent: number) : void
 
 Set the dot time error (1-100%). 
 
-# Get the Dot Time Error  #morse-dottimeerror
+## Get the Dot Time Error  #morse-dottimeerror
 
 ```sig
 morse.dotTimeError()
@@ -68,28 +74,10 @@ morse.dotTimeError()
 
 Provides the current dot time error as a percentage. 
 
-
-# Peek at the current Code  #morse-peekcode
-
-```sig
-morse.peekCode()
-```
-
-Provide the code described by the currently entered dots and dashes. 
-
-# Peek at the current sequence  #morse-peeksequence
+## Reset Key timing  #morse-resettiming
 
 ```sig
-morse.peekSequence()
-```
-
-Provide the sequence of dots and dashes that is currently entered. 
-
-
-## Reset Key timing  #morse-resetkeytiming
-
-```sig
-morse.resetKeyTiming() : void
+morse.resetTiming() : void
 ``` 
 
 Reset Timing of keying. May be needed if dot time is changed while in the midst of keying in a symbol. Resetting decoding may also be needed.
@@ -102,7 +90,10 @@ morse.onNewSymbol(handler: (symbol: string) => void)
 
 The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or ` ` (space between dots/dashes), `&` (space between words) or `#` (end of word/sentence/transmission).
 
-# Decoding refers to decoding a sequence of dots, dashes, and silences into letters based on Morse code.
+
+# Decoding  #morse-decoding
+
+Decoding refers to decoding a sequence of dots, dashes, and silences into letters based on Morse code.
 
 ## Dot  #morse-dot
 
@@ -158,7 +149,25 @@ Unused codes include:
 * Four sequences of four symbols: `..--`, `.-.-`, `---.`, `----`
 * And several sequences of 5 symbols:  `...-.`, `..-..`, `..-.-`, `..--.`, `.-...`, `.-..-`, `.-.--`, `.--..`, `.--.-`, `.---.`, `-..--`, `-.-..`, `-.-.-`, `-.--.`, `-.---`, `--..-`, `--.-.`, `--.--`, `---.-`
 
-# Encoding refers to converting letters and spaces to Morse code.
+## Peek at the current Code  #morse-peekcode
+
+```sig
+morse.peekCode()
+```
+
+Provide the code described by the currently entered dots and dashes. 
+
+## Peek at the current sequence  #morse-peeksequence
+
+```sig
+morse.peekSequence()
+```
+
+Provide the sequence of dots and dashes that is currently entered. 
+
+# Encoding #morse-encoding
+
+Encoding refers to converting letters and spaces to Morse code.
 
 ## Encoding text as Morse Code   #morse-encode
 

@@ -142,11 +142,10 @@ namespace morse {
     /**
      * Reset timing for key up/down
      */
-    //% blockId=reset block="reset key timing"
-    //% group="Keying"
-    //% advanced=true
-    //% weight=825
-    export function resetKeyTiming() {
+    //% blockId=resetTiming block="reset timing"
+    //% group="Keying" advanced=true
+    //% weight=815
+    export function resetTiming() {
         keyDownEvent = null
         keyUpEvent = null
     }
@@ -154,7 +153,7 @@ namespace morse {
     /**
      *  Respond to a new symbol
      */
-    //% blockId=onNewSymbol block="on new $newSymbol entered"
+    //% blockId=onNewSymbol block="on symbol $newSymbol entered"
     //% group="Keying"
     //% draggableParameters
     //% advanced=true
@@ -181,7 +180,7 @@ namespace morse {
     //% blockId=dot block="dot"
     //% group="Decoding"
     //% advanced=true
-    //% weight=750
+    //% weight=950
     export function dot() {
         state = Math.min(2 * state + DOT, MAX_STATE)
         if (sequence.length < MAX_SEQUENCE_LENGTH) {
@@ -198,7 +197,7 @@ namespace morse {
     //% blockId=dash block="dash"
     //% group="Decoding"
     //% advanced=true
-    //% weight=725
+    //% weight=925
     export function dash() {
         state = Math.min(2 * state + DASH, MAX_STATE)
         if (sequence.length < MAX_SEQUENCE_LENGTH) {
@@ -216,7 +215,7 @@ namespace morse {
     //% kind.defl=Space.InterLetter
     //% group="Decoding"
     //% advanced=true
-    //% weight=700
+    //% weight=900
     export function space(kind?: Space) {
         if (symbolHandler != null) {
             let sym = "?"
@@ -250,7 +249,7 @@ namespace morse {
     /**
      * Reset processing of a dot/dash/space sequence
      */
-    //% blockId=reset block="reset decoding"
+    //% blockId=resetDecoding block="reset decoding"
     //% group="Decoding"
     //% advanced=true
     //% weight=675
