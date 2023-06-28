@@ -229,52 +229,54 @@ input.onButtonPressed(Button.B, function () {
 Here's a simple program that also uses the "Clicks" extension to help practice keying.  
 * The bottom, right LED will blink to show the "dot time".  A full on/off cycle is a "dot time"
 * Button A acts as the key. 
-* The `start` block can be used to change dot time and allowed error.  The example below uses the default values and could be omitted if they are not going to be changed (1 second ± 50%, so a dot can be 0.5-1.5 seconds and a dash from 2.5-3.5 seconds).
+* The `start` block can be used to change dot time and allowed error.  The example below uses 0.5 second ± 100%, so a dot can be 0-1 seconds and a dash from 2-3 seconds).
+  * Single clicking Button B speeds the time up by 0.25s.
+  * Double clicking Button B slows the time down by 0.25s.
 * The display will show:
   * A single dot or a dash after successfully keying in a dot or dash. 
   * A checkmark for the rest at the end of complete letter (selecting a code), which is ~3 dot times of no key pressed.
   * An X for the space at the conclusion of a word/transmission, which is ~7 dot times of no key pressed.
 
 ```block
+buttonClicks.onButtonSingleClicked(buttonClicks.AorB.B, function () {
+    morse.setDotTime(morse.dotTime() - 250)
+})
+morse.onCodeSelected(function (code, sequence) {
+    basic.showString("" + (code))
+    basic.pause(100)
+})
 buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
     morse.keyUp()
 })
 morse.onNewSymbol(function (newSymbol) {
-    if (newSymbol == "&") {
-        basic.showIcon(IconNames.Yes)
-    } else if (newSymbol == "#") {
-        basic.showIcon(IconNames.No)
+    if (newSymbol == ".") {
+        led.plot(2, 2)
+        basic.pause(50)
+        led.unplot(2, 2)
     } else if (newSymbol == "-") {
-        basic.showLeds(`
-            . . . . .
-            . . . . .
-            # # # # #
-            . . . . .
-            . . . . .
-            `)
-    } else if (newSymbol == ".") {
-        basic.showLeds(`
-            . . . . .
-            . . . . .
-            . . # . .
-            . . . . .
-            . . . . .
-            `)
-    } else {
-        basic.showIcon(IconNames.Sad)
+        led.plot(1, 2)
+        led.plot(2, 2)
+        led.plot(3, 2)
+        basic.pause(50)
+        led.unplot(1, 2)
+        led.unplot(2, 2)
+        led.unplot(3, 2)
     }
-    basic.pause(200)
     basic.clearScreen()
 })
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
     morse.keyDown()
 })
-morse.setDotTimeError(50)
-morse.setDotTime(1000)
-basic.forever(function () {
-    basic.pause(morse.dotTime() / 2)
-    led.toggle(4, 4)
+buttonClicks.onButtonDoubleClicked(buttonClicks.AorB.B, function () {
+    morse.setDotTime(morse.dotTime() + 250)
 })
+morse.setDotTime(500)
+morse.setDotTimeError(100)
+basic.forever(function () {
+    led.toggle(4, 4)
+    basic.pause(morse.dotTime() / 2)
+})
+
 
 ```
 

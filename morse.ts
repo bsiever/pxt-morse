@@ -53,7 +53,8 @@ namespace morse {
                 space(Space.InterWord)
                 //serial.writeLine("KD-IWS")
             } else 
-            if (duration > (3-_dotTimeAllowedError) * _dotTime) {
+//                if (duration > (3 - _dotTimeAllowedError) * _dotTime) {
+            if (duration > 3 * _dotTime) {
                 space(Space.InterLetter)
                 //serial.writeLine("KD-ILS")
             }
@@ -74,10 +75,12 @@ namespace morse {
         // Process how long the key was down 
         if (keyDownEvent != null) {
             const duration = now - keyDownEvent
-            if (duration > (1-_dotTimeAllowedError) * _dotTime && duration < (1+_dotTimeAllowedError) * _dotTime) {
+//            if (duration > (1 - _dotTimeAllowedError) * _dotTime && duration < (1 + _dotTimeAllowedError) * _dotTime) {
+            if (duration < (1+_dotTimeAllowedError) * _dotTime) {
                 //serial.writeLine("KU dot")
                 dot()
-            } else if (duration > (3-_dotTimeAllowedError) * _dotTime && duration < (3+_dotTimeAllowedError) * _dotTime) {
+//            } else if (duration > (3-_dotTimeAllowedError) * _dotTime && duration < (3+_dotTimeAllowedError) * _dotTime) {
+            } else if (duration > (3 - _dotTimeAllowedError) * _dotTime) {
                 dash()
                 //serial.writeLine("KU dash")
             } else {
@@ -343,7 +346,7 @@ namespace morse {
             const now = control.millis()
             const duration = now - keyUpEvent
             // Check for word completion
-            if (duration > (7-_dotTimeAllowedError) * _dotTime - UPDATE_INTERVAL) {
+            if (duration > (7-_dotTimeAllowedError) * _dotTime) {
                 // Weed out any start states / empty codes (blips)
                 if(state!=START_STATE) {
                     //serial.writeLine("Q-IWS")
