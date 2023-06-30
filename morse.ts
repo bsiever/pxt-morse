@@ -32,7 +32,6 @@ namespace morse {
 
     // State variables for timing of keying in new symbols
     let _dotTime = 1000 // ms 
-    let _dotTimeAllowedError = 0.50 // % of dot-time +- expected values that's accepted. 
     let keyDownEvent : number = null
     let keyUpEvent : number = null
     let symbolHandler: (sym: string) => void = null
@@ -48,15 +47,12 @@ namespace morse {
         if (keyUpEvent != null) {
             const duration = now - keyUpEvent
             // Check for word spacing
-            if(duration > (7-_dotTimeAllowedError) * _dotTime) {
+            if(duration > 6 * _dotTime) {
                 // Shouldn't happen
                 space(Space.InterWord)
-                //serial.writeLine("KD-IWS")
             } else 
-//                if (duration > (3 - _dotTimeAllowedError) * _dotTime) {
-            if (duration > 3 * _dotTime) {
+            if (duration > 2 * _dotTime) {
                 space(Space.InterLetter)
-                //serial.writeLine("KD-ILS")
             }
         }
         keyUpEvent = null
@@ -75,18 +71,12 @@ namespace morse {
         // Process how long the key was down 
         if (keyDownEvent != null) {
             const duration = now - keyDownEvent
-//            if (duration > (1 - _dotTimeAllowedError) * _dotTime && duration < (1 + _dotTimeAllowedError) * _dotTime) {
-            if (duration < (1+_dotTimeAllowedError) * _dotTime) {
-                //serial.writeLine("KU dot")
+            if (duration <= 2 * _dotTime) {
                 dot()
-//            } else if (duration > (3-_dotTimeAllowedError) * _dotTime && duration < (3+_dotTimeAllowedError) * _dotTime) {
-            } else if (duration > (3 - _dotTimeAllowedError) * _dotTime) {
+            } else if (duration > 2 * _dotTime) {
                 dash()
-                //serial.writeLine("KU dash")
             } else {
-                // Invalid duration
-                //serial.writeLine("KU bad duration")
-
+                // Invalid duration; Can't happen
             }
         }
         keyDownEvent = null
@@ -116,30 +106,6 @@ namespace morse {
     export function dotTime() : number {
         // Minimum time of 100ms
         return _dotTime
-    }
-
-    /**
-     * Set the maximum allowed error in timing of "dot" times (1-100).
-     */
-    //% blockId=setDotTimeError block="set dot time error to ± $percent \\%"
-    //% advanced=true
-    //% percent.defl=50 percent.min=1 percent.max=100
-    //% group="Keying"
-    //% weight=830
-    export function setDotTimeError(percent: number) {
-        // Minimum time of 1%
-        _dotTimeAllowedError = Math.constrain(percent, 1, 100)/100.0
-    }
-
-    /**
-     * Percent of error allowed in "dot times"
-     */
-    //% blockId=dotTime block="dot time error \\%"
-    //% group="Keying"
-    //% advanced=true
-    //% weight=820
-    export function dotTimeError(): number {
-        return Math.round(_dotTimeAllowedError*100)
     }
 
     /**
@@ -346,7 +312,7 @@ namespace morse {
             const now = control.millis()
             const duration = now - keyUpEvent
             // Check for word completion
-            if (duration > (7-_dotTimeAllowedError) * _dotTime) {
+            if (duration > 6 * _dotTime) {
                 // Weed out any start states / empty codes (blips)
                 if(state!=START_STATE) {
                     //serial.writeLine("Q-IWS")

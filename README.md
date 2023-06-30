@@ -58,22 +58,6 @@ morse.dotTime()
 
 Provides the current dot time. 
 
-## Set the Dot Time Error  #morse-setdottimeerror
-
-```sig
-morse.setDotTimeError(percent: number) : void 
-```
-
-Set the dot time error (1-100%). 
-
-## Get the Dot Time Error  #morse-dottimeerror
-
-```sig
-morse.dotTimeError()
-```
-
-Provides the current dot time error as a percentage. 
-
 ## Reset Key timing  #morse-resettiming
 
 ```sig
@@ -271,7 +255,6 @@ buttonClicks.onButtonDoubleClicked(buttonClicks.AorB.B, function () {
     morse.setDotTime(morse.dotTime() + 250)
 })
 morse.setDotTime(500)
-morse.setDotTimeError(100)
 basic.forever(function () {
     led.toggle(4, 4)
     basic.pause(morse.dotTime() / 2)
@@ -302,7 +285,6 @@ morse.onNewSymbol(function (newSymbol) {
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
     morse.keyDown()
 })
-morse.setDotTimeError(50)
 morse.setDotTime(1000)
 basic.forever(function () {
     basic.pause(morse.dotTime() / 2)
