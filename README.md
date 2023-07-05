@@ -71,26 +71,26 @@ Provides the current maximum dash time.
 morse.setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: number) 
 ```
 
-Set the minimum time (in millisecondes) of slience allowed between symbols (dots/dashes) and letters of a word. 
+Set the maximum time (in millisecondes) of slience allowed between symbols (dots/dashes) and letters of a word. 
 * The `letterTime` will be greather than or equal to the `symbolTime`
 * If the silence exceeds the `symbolTime`, the sequence of dots/dashes will be considered to be compelte and will be decoded. 
 * If the silence exceeds the `letterTime`, it will be considered a "silence" between words (decoded as a space (` `)).
 
-## Get the Minimum Between Symbol Time  #morse-minbetweensymboltime
+## Get the Maximum Between Symbol Time  #morse-maxbetweensymboltime
 
 ```sig
-morse.minBetweenSymbolTime()
+morse.maxBetweenSymbolTime()
 ```
 
-Provides the current minimum time allowed between symbols (dots and dashes) before considering the sequence of dots/dashes completed.  
+Provides the current maximum time allowed between symbols (dots and dashes) before considering the sequence of dots/dashes completed.  
 
-## Get the Minimum Between Letter Time  #morse-minbetweenlettertime
+## Get the Maximum Between Letter Time  #morse-maxbetweenlettertime
 
 ```sig
-morse.minBetweenLetterTime()
+morse.maxBetweenLetterTime()
 ```
 
-Provides the current minimum time before considering the preceeding letters to be completed (before being considered a silence between words or end of transmissions).  When this time is exceeded it will be decoded as a space (` `). 
+Provides the current maximum time before considering the preceeding letters to be completed (before being considered a silence between words or end of transmissions).  When this time is exceeded it will be decoded as a space (` `). 
 
 ## Reset Key timing  #morse-resettiming
 

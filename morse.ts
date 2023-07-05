@@ -23,7 +23,7 @@ namespace morse {
     const START_STATE = 0
     const ERROR_CODE = '?'
     const UPDATE_INTERVAL = 100 // ms to check for updates
-    const MAX_SEQUENCE_LENGTH = 6
+    const MAX_SEQUENCE_LENGTH = 7
 
     // Current position in Morse tree
     let state = START_STATE
@@ -33,8 +33,8 @@ namespace morse {
     // State variables for timing of keying in new symbols
     let _maxDotTime = 100 // ms 
     let _maxDashTime = 1000 // ms 
-    let _minBetweenSymbolsTime = 500 // ms
-    let _minBetweenLettersTime = 3000 // ms
+    let _maxBetweenSymbolsTime = 500 // ms
+    let _maxBetweenLettersTime = 3000 // ms
 
     let keyDownEvent : number = null
     let keyUpEvent : number = null
@@ -53,7 +53,7 @@ namespace morse {
         if (keyUpEvent != null) {
             const duration = now - keyUpEvent
             // Check for word spacing
-            if(duration > _minBetweenSymbolsTime) {
+            if(duration > _maxBetweenSymbolsTime) {
                 silence(Silence.InterLetter)
             }
         }
@@ -135,7 +135,7 @@ namespace morse {
     /**
      * Set the length of time for a silence events in milliseconds. The time between letters will always be at least the time between symbols.
     */
-    //% blockId=setSilenceBetweenSymbolsLettersTimes block="set min silence between symbols to $symbolTime and min between letters to $letterTime ms$" 
+    //% blockId=setSilenceBetweenSymbolsLettersTimes block="set max silence between symbols to $symbolTime and max between letters to $letterTime ms$" 
     //% advanced=true
     //% group="Keying"
     //% weight=840
@@ -143,33 +143,30 @@ namespace morse {
     //% symbolTime.defl=500 symbolTime.min=10 symbolTime.max=5000
     //% letterTime.defl=1000 letterTime.min=10 letterTime.max=15000
     export function setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: number) {
-        // Minimum time of 100ms
-        _minBetweenSymbolsTime = Math.constrain(symbolTime, 1, 5000)
-        _minBetweenLettersTime = Math.constrain(letterTime, _minBetweenSymbolsTime, 15000)
+        _maxBetweenSymbolsTime = Math.constrain(symbolTime, 1, 5000)
+        _maxBetweenLettersTime = Math.constrain(letterTime, _maxBetweenSymbolsTime, 15000)
     }
 
     /**
-     * The minimum length of time between symbols  (dots/dashes) in milliseconds
+     * The maximum length of time between symbols  (dots/dashes) in milliseconds
      */
-    //% block="min time between symbols (ms)" 
+    //% block="max time between symbols (ms)" 
     //% group="Keying"
     //% advanced=true
     //% weight=830
-    export function minBetweenSymbolTime(): number {
-        // Minimum time of 100ms
-        return _minBetweenSymbolsTime
+    export function maxBetweenSymbolTime(): number {
+        return _maxBetweenSymbolsTime
     }
 
     /**
-     * The minmum length of time between letters of a word in milliseconds
+     * The maximum length of time between letters of a word in milliseconds
      */
-    //% block="min time between letters (ms)" 
+    //% block="max time between letters (ms)" 
     //% group="Keying"
     //% advanced=true
     //% weight=820
-    export function minBetweenLetterTime(): number {
-        // Minimum time of 100ms
-        return _minBetweenLettersTime
+    export function maxBetweenLetterTime(): number {
+        return _maxBetweenLettersTime
     }
 
 
@@ -196,7 +193,6 @@ namespace morse {
     export function onNewSymbol(handler: (newSymbol: string) => void) {
         symbolHandler = handler
     }
-
 
     /**
      *  Respond to a completed code for a character (includes the sequences of dots/dashes). Code will be an underscore (_) when words are completed. 
@@ -384,7 +380,7 @@ namespace morse {
             // Weed out any start states / empty codes (blips)
             if(state != START_STATE) {
                 // Check for letter completion
-                if (duration > _minBetweenSymbolsTime) {
+                if (duration > _maxBetweenSymbolsTime) {
                     silence(Silence.InterLetter)
                     keyUpEvent = null
                 }
@@ -392,7 +388,7 @@ namespace morse {
         }
         if(keyLastUpEvent != null) {
             const duration = now - keyLastUpEvent
-            if (duration > _minBetweenLettersTime) {
+            if (duration > _maxBetweenLettersTime) {
                 silence(Silence.InterWord)
                 keyLastUpEvent = null
             } 
