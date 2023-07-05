@@ -12,12 +12,12 @@ This extension can decode and encode dots/dashes of Morse Code as well as manage
 
 * There are three major components to this extension:
   * [Keying](#morse-keying) in Morse code, which requires precise timing of pressing and releasing the "key". 
-  * [Decoding](#morse-decoding) a sequence of key presses (dots, dashes and spaces) into a symbol (letter) based on Morse code. 
+  * [Decoding](#morse-decoding) a sequence of key presses (dots, dashes and silences) into a symbol (letter) based on Morse code. 
   * [Encoding](#morse-encoding) a sequence of letters into symbols that represent the sequence of key presses (and spaces) needed to send those letters via Morse code.
 
 # Keying #morse-keying
 
-"Keying" refers to keying in the dots, dashes, and "spaces" (quiet periods).   
+"Keying" refers to keying in the dots, dashes, and "silences".   
 Here "keying" in codes with key up and key down will automatically start processing the keys.
 
 Keying with the built-in buttons may be easier if the [Button Clicks](https://makecode.microbit.org/pkg/bsiever/microbit-pxt-clicks) extension's `on button down` and `on button up` blocks are used.
@@ -104,7 +104,7 @@ Reset Timing of keying. May be needed if dot time is changed while in the midst 
 morse.onNewSymbol(handler: (symbol: string) => void)
 ```
 
-The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or ` ` (space between dots/dashes), `&` (space between words) or `#` (end of word/sentence/transmission).
+The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or `` (empty string is silences between dots/dashes), `-` (space between letters) or ` ` (end of word/sentence/transmission).
 
 
 # Decoding  #morse-decoding

@@ -5,12 +5,12 @@
 //% groups="['Keying', 'Decoding', 'Encoding', 'Advanced']"
 namespace morse {
 
-    export enum Space {
+    export enum Silence {
         //% block="between letters"
         InterLetter = 3,
         //% block="between words"
         InterWord = 7,
-        //% block="dit space"
+        //% block="dit silence"
         Small = 0,
     }
         
@@ -54,7 +54,7 @@ namespace morse {
             const duration = now - keyUpEvent
             // Check for word spacing
             if(duration > _minBetweenSymbolsTime) {
-                space(Space.InterLetter)
+                silence(Silence.InterLetter)
             }
         }
         keyUpEvent = null
@@ -94,9 +94,10 @@ namespace morse {
      * A dash will be any key hold between 10ms and the max dot time.  A dash will be anything greater than the dot time and less than the max dash time.
      * Values greater than the max dash time will "reset" the state of decoding.
      */
-    //% blockId=setMaxDotDashTimes block="set max dot time to $dotTime ms | and max dash time to $dashTime ms$" 
+    //% blockId=setMaxDotDashTimes block="set max dot time to $dotTime and max dash time to $dashTime (ms)" 
     //% advanced=true
     //% group="Keying"
+    //% inlineInputMode=external
     //% weight=870
     //% dotTime.defl=200 dotTime.min=10 dotTime.max=5000
     //% dashTime.defl=1000 dashTime.min=10 dashTime.max=15000
@@ -107,7 +108,7 @@ namespace morse {
     }
 
     /**
-     * The maximum length of time for a "dot" in milliseconds (10-15000ms)
+     * The maximum length of time for a "dot" in milliseconds (1-5000ms)
      */
     //% block="max dot time (ms)" 
     //% group="Keying"
@@ -119,7 +120,7 @@ namespace morse {
     }
 
     /**
-     * The maximum length of time for a "dash" in milliseconds
+     * The maximum length of time for a "dash" in milliseconds (2*max dot time-15000ms)
      */
     //% block="max dash time (ms)" 
     //% group="Keying"
@@ -134,10 +135,11 @@ namespace morse {
     /**
      * Set the length of time for a silence events in milliseconds. The time between letters will always be at least the time between symbols.
     */
-    //% blockId=setSilenceBetweenSymbolsLettersTimes block="set minimum silence between symbols $symbolTime ms |  and max between letters to $letterTime ms$" 
+    //% blockId=setSilenceBetweenSymbolsLettersTimes block="set min silence between symbols to $symbolTime and min between letters to $letterTime ms$" 
     //% advanced=true
     //% group="Keying"
     //% weight=840
+    //% inlineInputMode=external
     //% symbolTime.defl=500 symbolTime.min=10 symbolTime.max=5000
     //% letterTime.defl=1000 letterTime.min=10 letterTime.max=15000
     export function setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: number) {
@@ -197,7 +199,7 @@ namespace morse {
 
 
     /**
-     *  Respond to a completed code for a character
+     *  Respond to a completed code for a character (includes the sequences of dots/dashes). Code will be an underscore (_) when words are completed. 
      */
     //% blockId=onCodeSelected block="on $code ($sequence) selected"
     //% group="Decoding"
@@ -242,38 +244,38 @@ namespace morse {
     }
 
     /**
-     * Record a space of some sort (between characters or words)
+     * Record a silence of some sort (between characters or words)
      */
-    //% blockId=space block="space $kind"
-    //% kind.defl=Space.InterLetter
+    //% blockId=silence block="silence $kind"
+    //% kind.defl=Silence.InterLetter
     //% group="Decoding"
     //% advanced=true
     //% weight=900
-    export function space(kind?: Space) {
+    export function silence(kind?: Silence) {
         let sym = "?"
         if (symbolHandler != null) {
             switch(kind) {
-                case Space.InterLetter:
+                case Silence.InterLetter:
                     sym = "-"
                     break
-                case Space.InterWord:
+                case Silence.InterWord:
                     sym = " "
                     break
                 case null:
-                case Space.Small:
+                case Silence.Small:
                     sym = ""
                     break
             }
             symbolHandler(sym)
         }
 
-        // Ignore small spaces
-        if (kind == null || kind == Space.Small) {
+        // Ignore small silences
+        if (kind == null || kind == Silence.Small) {
             return;
         }
         // Process code: Send " " for end of word/transmission.
         if (codeSelectHandler != null) {
-            if(kind == Space.InterWord) {
+            if(kind == Silence.InterWord) {
                 codeSelectHandler(" ", "")
             } else {
                 const code = morseTree.charAt(state)
@@ -284,7 +286,7 @@ namespace morse {
     }
 
     /**
-     * Reset processing of a dot/dash/space sequence
+     * Reset processing of a dot/dash/silence sequence
      */
     //% blockId=resetDecoding block="reset decoding"
     //% group="Decoding"
@@ -296,7 +298,7 @@ namespace morse {
     }  
 
     /**
-       * Peek at the code that would be chosen from the current sequence if there is a sufficient space
+       * Peek at the code that would be chosen from the current sequence if there is a sufficient silence
        */
     //% blockId=peekCode block="peek current code"
     //% group="Decoding"
@@ -346,7 +348,7 @@ namespace morse {
 
     /**
      * Encode the given characters to morse code.
-     * @return string of dots, dashes, spaces (between chars), # (between words) and newlines.
+     * @return string of dots, dashes, silences (between chars), # (between words), "?" (invalid character for Morse Code), and newlines (for newlines).
      */
     //% blockId=encode block="encode $characters to morse"
     //% group="Encoding"
@@ -363,7 +365,7 @@ namespace morse {
                     result += c
                 break;
                 default: 
-                    // Space between any real characters
+                    // Silence between any real characters
                     if(lastC!=null && lastC!=" " && lastC!="\n") {
                         result += " " 
                     }
@@ -375,7 +377,7 @@ namespace morse {
     }
 
     loops.everyInterval(UPDATE_INTERVAL, function () {
-        // Check for spaces / dones (no key pressed for a bit)
+        // Check for silences / dones (no key pressed for a bit)
         const now = control.millis()
         if(keyUpEvent!=null) {
             const duration = now - keyUpEvent
@@ -383,7 +385,7 @@ namespace morse {
             if(state != START_STATE) {
                 // Check for letter completion
                 if (duration > _minBetweenSymbolsTime) {
-                    space(Space.InterLetter)
+                    silence(Silence.InterLetter)
                     keyUpEvent = null
                 }
             }
@@ -391,7 +393,7 @@ namespace morse {
         if(keyLastUpEvent != null) {
             const duration = now - keyLastUpEvent
             if (duration > _minBetweenLettersTime) {
-                space(Space.InterWord)
+                silence(Silence.InterWord)
                 keyLastUpEvent = null
             } 
         }
