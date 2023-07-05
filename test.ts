@@ -19,7 +19,7 @@ function keyDash() {
 }
 
 function waitSpace() {
-    let symSpaceTime = morse.maxBetweenSymbolTime()
+    let symSpaceTime = morse.minBetweenSymbolTime()
     // TODO: Check this!
     randomWait(symSpaceTime + 10, 2 * symSpaceTime)
 }

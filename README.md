@@ -36,27 +36,59 @@ morse.keyUp() : void
 ``` 
 The Morse code key has been released.
 
-## Set Dot Time / Timing  #morse-setdottime
+## Set Dot and Dash Times / Timing  #morse-setmaxdotdashtimes
 
 ```sig 
-morse.setDotTime(time : number) : void
+morse.setMaxDotDashTimes(dotTime: number, dashTime: number) {
 ```
 
-Set the time (in milliseconds) of a "dot". 
-* Dashes should be three times the length of a dot.
-* The time between consecutive symbols (dots or dashes) should be the same as the "dot time"
-* The time at the completion of a letter should be three times the dot time.
-* The time at the completion of a word should be at least seven times the dot time.
+Set the maximum time (in milliseconds) of dots and dashes. 
+* A dot is when the key is held between 1ms and the max dot time (\[1ms..`maxDotTime`]).
+* A dash when the key is held more than a dot and less than the max dash time ((`maxDotTime`..`maxDashTime`]). 
+* If the key is held longer than the max dash time, the decoding state will be reset (i.e., current set of dots/dashes will be abandoned). 
 
-Keying in requires timing within a sepcified error of the "Dot time" to be recognized.
-
-## Get the Dot Time  #morse-dottime
+## Get the Max Dot Time  #morse-maxdottime
 
 ```sig
-morse.dotTime()
+morse.maxDotTime()
 ```
 
-Provides the current dot time. 
+Provides the current maximum dot time. 
+
+## Get the Max Dot Time  #morse-maxdashtime
+
+```sig
+morse.maxDashTime()
+```
+
+Provides the current maximum dash time. 
+
+## Set Silence Between Symbols Letters Times / Timing  #morse-setsilencebetweensymbolsLetterstimes
+
+```sig 
+morse.setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: number) 
+```
+
+Set the minimum time (in millisecondes) of slience allowed between symbols (dots/dashes) and letters of a word. 
+* The `letterTime` will be greather than or equal to the `symbolTime`
+* If the silence exceeds the `symbolTime`, the sequence of dots/dashes will be considered to be compelte and will be decoded. 
+* If the silence exceeds the `letterTime`, it will be considered a "space" between words (decoded as a space (` `)).
+
+## Get the Minimum Between Symbol Time  #morse-minbetweensymboltime
+
+```sig
+morse.minBetweenSymbolTime()
+```
+
+Provides the current minimum time allowed between symbols (dots and dashes) before considering the sequence of dots/dashes completed.  
+
+## Get the Minimum Between Letter Time  #morse-minbetweenlettertime
+
+```sig
+morse.minBetweenLetterTime()
+```
+
+Provides the current minimum time before considering the preceeding letters to be completed (before being considered a space between words or end of transmissions).  When this time is exceeded it will be decoded as a space (` `). 
 
 ## Reset Key timing  #morse-resettiming
 
@@ -124,7 +156,7 @@ A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a 
 ```sig
 morse.onCodeSelected(handler: (code: string, sequence: string) => void) 
 ``` 
-A code has been selected (following a  `morse.Space.InterLetter` or a  `morse.Space.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (?).  `sequence` will be the sequence of dots and dashes in the code. 
+A code has been selected (following a  `morse.Space.InterLetter` or a  `morse.Space.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (?).  `sequence` will be the sequence of dots and dashes in the code.  If there's an end-of-word or end-of-transmission silence (> min letter between letters time), the code will be an underscore (` `) and the sequence will be empty.
 
 Note that several codes are unused by traditional Morse code.  In these cases the `code` will be `?` and the `sequence` will indicate the sequence of dots and dashes. 
 
@@ -215,28 +247,30 @@ Here's a simple program that also uses the "Clicks" extension to help practice k
 * The `start` block can be used to change the timing of dots, dashes, and "spaces". 
 * The display will show:
   * A single dot or a dash after successfully keying in a dot or dash. 
-  * A letter / code after a successful entry. 
-  * An `_` for the space at the conclusion of a word/transmission.
+  * A letter / code after a successfully keying a code. 
+  * An underscore (`_`) for the space at the conclusion of a word/transmission.
 
 ### ~alert
 
 The example uses a special form of `showString` to ensure it's shown fast enough 
 to keep up with Morse code entry.  This version of "Show String" isn't available as a block.
 
-###
+### ~
 
 ```block
 morse.onCodeSelected(function (code, sequence) {
+    // Make spaces visible.
+    if(code == " ") {
+        code = "_"
+    }
     serial.writeLine("Code: " + code)
     basic.showString(code, 0)
-    // basic.showString("" + (code))
-    // basic.clearScreen()
 })
 buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
     morse.keyUp()
 })
 morse.onNewSymbol(function (newSymbol) {
-	serial.writeLine(newSymbol)
+    serial.writeLine("" + (newSymbol))
     basic.showString(newSymbol,0)
 })
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
