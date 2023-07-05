@@ -211,55 +211,43 @@ input.onButtonPressed(Button.B, function () {
 ## Key Timing Trainer
 
 Here's a simple program that also uses the "Clicks" extension to help practice keying.  
-* The bottom, right LED will blink to show the "dot time".  A full on/off cycle is a "dot time"
 * Button A acts as the key. 
-* The `start` block can be used to change dot time and allowed error.  The example below uses 0.5 second ± 100%, so a dot can be 0-1 seconds and a dash from 2-3 seconds).
-  * Single clicking Button B speeds the time up by 0.25s.
-  * Double clicking Button B slows the time down by 0.25s.
+* The `start` block can be used to change the timing of dots, dashes, and "spaces". 
 * The display will show:
   * A single dot or a dash after successfully keying in a dot or dash. 
-  * A checkmark for the rest at the end of complete letter (selecting a code), which is ~3 dot times of no key pressed.
-  * An X for the space at the conclusion of a word/transmission, which is ~7 dot times of no key pressed.
+  * A letter / code after a successful entry. 
+  * An `_` for the space at the conclusion of a word/transmission.
+
+### ~alert
+
+The example uses a special form of `showString` to ensure it's shown fast enough 
+to keep up with Morse code entry.  This version of "Show String" isn't available as a block.
+
+###
 
 ```block
-buttonClicks.onButtonSingleClicked(buttonClicks.AorB.B, function () {
-    morse.setDotTime(morse.dotTime() - 250)
-})
 morse.onCodeSelected(function (code, sequence) {
-    basic.showString("" + (code))
-    basic.pause(100)
+    serial.writeLine("Code: " + code)
+    basic.showString(code, 0)
+    // basic.showString("" + (code))
+    // basic.clearScreen()
 })
 buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
     morse.keyUp()
 })
 morse.onNewSymbol(function (newSymbol) {
-    if (newSymbol == ".") {
-        led.plot(2, 2)
-        basic.pause(50)
-        led.unplot(2, 2)
-    } else if (newSymbol == "-") {
-        led.plot(1, 2)
-        led.plot(2, 2)
-        led.plot(3, 2)
-        basic.pause(50)
-        led.unplot(1, 2)
-        led.unplot(2, 2)
-        led.unplot(3, 2)
-    }
-    basic.clearScreen()
+	serial.writeLine(newSymbol)
+    basic.showString(newSymbol,0)
 })
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
     morse.keyDown()
 })
-buttonClicks.onButtonDoubleClicked(buttonClicks.AorB.B, function () {
-    morse.setDotTime(morse.dotTime() + 250)
+input.onButtonPressed(Button.B, function () {
+    morse.resetTiming()
+    morse.resetDecoding()
 })
-morse.setDotTime(500)
-basic.forever(function () {
-    led.toggle(4, 4)
-    basic.pause(morse.dotTime() / 2)
-})
-
+morse.setMaxDotDashTimes(200, 1000)
+morse.setSilenceBetweenSymbolsLettersTimes(500, 3000)
 
 ```
 
@@ -267,11 +255,9 @@ basic.forever(function () {
 
 The code below can be used to practice keying in Morse code.  It will show the code letter for the current sequence of dots/dashes that were entered with button A.  It will "flash" when the code is completed/accepted. 
 
-The bottom, right LED will blink to show the "Dot time".  A full on/off cycle is a "dot time"
-
 ```block 
 morse.onCodeSelected(function (code, sequence) {
-    basic.showString("" + (code))
+    basic.showString(code, 100)
     game.addScore(1)
 })
 buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
@@ -279,16 +265,11 @@ buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
 })
 morse.onNewSymbol(function (newSymbol) {
     if (newSymbol == "-" || newSymbol == ".") {
-        basic.showString(morse.peekCode())
+        basic.showString(morse.peekCode(), 0)
     }
 })
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
     morse.keyDown()
-})
-morse.setDotTime(1000)
-basic.forever(function () {
-    basic.pause(morse.dotTime() / 2)
-    led.toggle(4, 4)
 })
 
 ```
