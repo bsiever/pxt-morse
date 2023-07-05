@@ -4,25 +4,24 @@ function randomWait(lower: number, upper: number) {
 }
 
 function keyDot() {
-    let dotTime = morse.dotTime()
+    let dotTime = morse.maxDotTime()
     morse.keyDown()
-//    basic.pause(dotTime)
-    randomWait(10, 2*dotTime-10)
+    randomWait(10, dotTime-10)
     morse.keyUp()
 }
 
 function keyDash() {
-    let dotTime = morse.dotTime()
+    let dotTime = morse.maxDotTime()
+    let dashTime = morse.maxDashTime()
     morse.keyDown()
-//    basic.pause(3*dotTime)
-    randomWait(2*dotTime+10, 4*dotTime)
+    randomWait(dotTime + 10, dashTime-10)
     morse.keyUp()
 }
 
 function waitSpace() {
-    let dotTime = morse.dotTime()
-//    basic.pause(3*dotTime)
-    randomWait(2.5*dotTime, 4.5*dotTime)
+    let symSpaceTime = morse.minBetweenSymbolTime()
+    // TODO: Check this!
+    randomWait(symSpaceTime + 10, 2 * symSpaceTime)
 }
 
 
@@ -47,7 +46,7 @@ morse.onCodeSelected( function (code: string, sequence: string) {
     }
 })
 
-morse.setDotTime(200)
+morse.setMaxDotDashTimes(200, 1000)
 
 serial.writeLine("Test 1:")
 let toSend = ".- -... -.-."
