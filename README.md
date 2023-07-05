@@ -13,7 +13,7 @@ This extension can decode and encode dots/dashes of Morse Code as well as manage
 * There are three major components to this extension:
   * [Keying](#morse-keying) in Morse code, which requires precise timing of pressing and releasing the "key". 
   * [Decoding](#morse-decoding) a sequence of key presses (dots, dashes and silences) into a symbol (letter) based on Morse code. 
-  * [Encoding](#morse-encoding) a sequence of letters into symbols that represent the sequence of key presses (and spaces) needed to send those letters via Morse code.
+  * [Encoding](#morse-encoding) a sequence of letters into symbols that represent the sequence of key presses (and silences) needed to send those letters via Morse code.
 
 # Keying #morse-keying
 
@@ -21,6 +21,8 @@ This extension can decode and encode dots/dashes of Morse Code as well as manage
 Here "keying" in codes with key up and key down will automatically start processing the keys.
 
 Keying with the built-in buttons may be easier if the [Button Clicks](https://makecode.microbit.org/pkg/bsiever/microbit-pxt-clicks) extension's `on button down` and `on button up` blocks are used.
+
+
 
 ## Key Down #morse-keydown
 
@@ -72,7 +74,7 @@ morse.setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: numbe
 Set the minimum time (in millisecondes) of slience allowed between symbols (dots/dashes) and letters of a word. 
 * The `letterTime` will be greather than or equal to the `symbolTime`
 * If the silence exceeds the `symbolTime`, the sequence of dots/dashes will be considered to be compelte and will be decoded. 
-* If the silence exceeds the `letterTime`, it will be considered a "space" between words (decoded as a space (` `)).
+* If the silence exceeds the `letterTime`, it will be considered a "silence" between words (decoded as a space (` `)).
 
 ## Get the Minimum Between Symbol Time  #morse-minbetweensymboltime
 
@@ -88,7 +90,7 @@ Provides the current minimum time allowed between symbols (dots and dashes) befo
 morse.minBetweenLetterTime()
 ```
 
-Provides the current minimum time before considering the preceeding letters to be completed (before being considered a space between words or end of transmissions).  When this time is exceeded it will be decoded as a space (` `). 
+Provides the current minimum time before considering the preceeding letters to be completed (before being considered a silence between words or end of transmissions).  When this time is exceeded it will be decoded as a space (` `). 
 
 ## Reset Key timing  #morse-resettiming
 
@@ -104,7 +106,7 @@ Reset Timing of keying. May be needed if dot time is changed while in the midst 
 morse.onNewSymbol(handler: (symbol: string) => void)
 ```
 
-The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or `` (empty string is silences between dots/dashes), `-` (space between letters) or ` ` (end of word/sentence/transmission).
+The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or `` (empty string is silences between dots/dashes), `-` (silence between letters) or ` ` (end of word/sentence/transmission).
 
 
 # Decoding  #morse-decoding
@@ -135,19 +137,19 @@ morse.resetDecoding() : void
 
 Reset dash/dot processing. That is, start at the beginning as though nothing had been keyed in.
 
-## Space (silence)  #morse-space
+## Silence  #morse-silence
 
 ```sig
-morse.space(kind?: morse.Space) : void
+morse.silence(kind?: morse.Silence) : void
 ``` 
 
-Register that a space between things has happened.  `morse.Space.Small` are "small spaces" used between dots and dashes and are ignored.  `morse.Space.InterLetter` and `morse.Space.InterWord` are spaces between letters (usually take the time of three dots) and words (usually takes the time of seven dots) and indicate that a character has been found / selected.
+Register that a silence between things has happened.  `morse.Silence.Small` are "small silences" used between dots and dashes and are ignored.  `morse.Silence.InterLetter` and `morse.Silence.InterWord` are silences between letters (usually take the time of three dots) and words (usually takes the time of seven dots) and indicate that a character has been found / selected.
 
 ### ~alert
 
-# Spaces are needed
+# Silences are needed
 
-A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a letter. 
+A `morse.Silence.InterLetter` or `morse.Silence.InterWord` is required to detect a letter. 
 
 ### ~
 
@@ -156,7 +158,7 @@ A `morse.Space.InterLetter` and `morse.Space.InterWord` is required to detect a 
 ```sig
 morse.onCodeSelected(handler: (code: string, sequence: string) => void) 
 ``` 
-A code has been selected (following a  `morse.Space.InterLetter` or a  `morse.Space.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (?).  `sequence` will be the sequence of dots and dashes in the code.  If there's an end-of-word or end-of-transmission silence (> min letter between letters time), the code will be an underscore (` `) and the sequence will be empty.
+A code has been selected (following a  `morse.Silence.InterLetter` or a  `morse.Silence.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (?).  `sequence` will be the sequence of dots and dashes in the code.  If there's an end-of-word or end-of-transmission silence (> min letter between letters time), the code will be an underscore (` `) and the sequence will be empty.
 
 Note that several codes are unused by traditional Morse code.  In these cases the `code` will be `?` and the `sequence` will indicate the sequence of dots and dashes. 
 
@@ -223,7 +225,7 @@ morse.onCodeSelected(function (code, sequence) {
 
 input.onButtonPressed(Button.AB, function () {
     basic.showIcon(IconNames.Yes)
-    morse.space(morse.Space.InterLetter)
+    morse.silence(morse.Silence.InterLetter)
 })
 input.onButtonPressed(Button.B, function () {
     morse.dash()
@@ -244,11 +246,11 @@ input.onButtonPressed(Button.B, function () {
 
 Here's a simple program that also uses the "Clicks" extension to help practice keying.  
 * Button A acts as the key. 
-* The `start` block can be used to change the timing of dots, dashes, and "spaces". 
+* The `start` block can be used to change the timing of dots, dashes, and "silences". 
 * The display will show:
   * A single dot or a dash after successfully keying in a dot or dash. 
   * A letter / code after a successfully keying a code. 
-  * An underscore (`_`) for the space at the conclusion of a word/transmission.
+  * An underscore (`_`) for the silence at the conclusion of a word/transmission.
 
 ### ~alert
 
@@ -259,7 +261,7 @@ to keep up with Morse code entry.  This version of "Show String" isn't available
 
 ```block
 morse.onCodeSelected(function (code, sequence) {
-    // Make spaces visible.
+    // Make silences visible.
     if(code == " ") {
         code = "_"
     }
