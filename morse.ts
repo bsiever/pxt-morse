@@ -31,8 +31,8 @@ namespace morse {
     let codeSelectHandler: (code: string, sequence: string) => void = null
 
     // State variables for timing of keying in new symbols
-    let _maxDotTime = 100 // ms 
-    let _maxDashTime = 1000 // ms 
+    let _maxDotTime = 200 // ms 
+    let _maxDashTime = 1000 // ms
     let _maxBetweenSymbolsTime = 500 // ms
     let _maxBetweenLettersTime = 3000 // ms
 
@@ -127,7 +127,6 @@ namespace morse {
     //% advanced=true
     //% weight=850
     export function maxDashTime(): number {
-        // Minimum time of 100ms
         return _maxDashTime
     }
 
