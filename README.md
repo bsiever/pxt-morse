@@ -6,23 +6,53 @@ morse=github:bsiever/pxt-morse
 clicks=github:bsiever/microbit-pxt-clicks
 ```
 
-# Morse Decoder
+# Morse Code: Keying-in, Decoding, and Encoding
 
-This extension can decode and encode dots/dashes of Morse Code as well as manage the detection of keying in of Morse code. 
+This extension can decode and encode dots/dashes of Morse Code as well as manage the detection of keying-in of Morse code. 
 
 * There are three major components to this extension:
-  * [Keying](#morse-keying) in Morse code, which requires precise timing of pressing and releasing the "key". 
-  * [Decoding](#morse-decoding) a sequence of key presses (dots, dashes and silences) into a symbol (letter) based on Morse code. 
-  * [Encoding](#morse-encoding) a sequence of letters into symbols that represent the sequence of key presses (and silences) needed to send those letters via Morse code.
+  * [Keying](#morse-keying)-detection, which will convert a set of key presses (key up and key down) into the major symbols used in morse code:  dots (dit), dashes (dahs), and silences between key presses.  Keys presses and releases must be carefully timed to be detected. 
+  * [Decoding](#morse-decoding) a sequence representing dots, dashes and silences into a symbol (letter or number) based on Morse code. 
+  * [Encoding](#morse-encoding) a sequence of letters/numbers into symbols that represent the sequence of dots and dashes needed to send those letters via Morse code.
+
+The term "dit" is sometimes used rather than dot. And "dah" rather than dash.
 
 # Keying #morse-keying
 
-"Keying" refers to keying in the dots, dashes, and "silences".   
-Here "keying" in codes with key up and key down will automatically start processing the keys.
+"Keying" refers to keying in the dots, dashes, and the important "silences" that occur.    The keying blocks, ``[morse.keyDown()]`` and ``[morse.keyUp()]``, are used to indicate when a key is pressed and released.  Key presses and releases will automatically be decoded, first to dots and dashes and, following an appropriate "silence", a code letter/number.
+
+Standard Morse code timing expects:
+* a dot is considered 1 time unit
+* a dash to be 3 time units
+* a silence of 1 time unit between dots/dashs that represent a letter 
+* a silence of 3 units indicating the end of a letter (or the gap between two different letters)
+* a silence of 7 time units between words
+
+This extension uses four values to decode key presses: 
+* ``[morse.maxDotTime()]``
+* ``[morse.maxDashTime()]``
+* ``[morse.maxBetweenSymbolTime()]``
+* ``[morse.maxBetweenLetterTime()]``
+
+If the duration of time between  ``[morse.keyDown()]`` and  ``[morse.keyUp()]`` is:
+* \[1...``[morse.maxDotTime()]``], it is considered a successful "dot". 
+* \(``[morse.maxDotTime()]``...``[morse.maxDashTime()]``], it is considered a successful "dash". 
+* \(``[morse.maxDashTime()]``...], it is considered an invalid key.  Any preceeding dots and dashes are discarded.
+
+If, following a ``[morse.keyUp()]``, there is no ``[morse.keyDown()]`` for more than ``[morse.maxBetweenSymbolTime()]``, any successful dots/dashes are treated as a letter and ``[morse.morse.onNewSymbol()]`` is executed.  
+If, following a ``[morse.keyUp()]``, there is no ``[morse.keyDown()]`` for more than ``[morse.maxBetweenLetterTime()]``, any successful dots/dashes are treated as a letter and ``[morse.morse.onNewSymbol()]`` is executed. The `code` will be a space (`" "`) to indicate the gap between words).
+
+By default the timing is comparable to a dit that lasts about 160ms, but requiring an extra long gap between words:
+* A dot is any press that's 1-200ms (~0-0.20 seconds).
+* A dash is anything from 201-1000ms (0.2-1 seconds).
+* A silence of more than 500 ms (1s) is considered to signify the end of a letter. 
+* A silence of more than 2000ms (2s) is considered the end of a word.  
+
+### ~hint
 
 Keying with the built-in buttons may be easier if the [Button Clicks](https://makecode.microbit.org/pkg/bsiever/microbit-pxt-clicks) extension's `on button down` and `on button up` blocks are used.
 
-
+### ~
 
 ## Key Down #morse-keydown
 
@@ -47,7 +77,7 @@ morse.setMaxDotDashTimes(dotTime: number, dashTime: number) {
 Set the maximum time (in milliseconds) of dots and dashes. 
 * A dot is when the key is held between 1ms and the max dot time (\[1ms..`maxDotTime`]).
 * A dash when the key is held more than a dot and less than the max dash time ((`maxDotTime`..`maxDashTime`]). 
-* If the key is held longer than the max dash time, the decoding state will be reset (i.e., current set of dots/dashes will be abandoned). 
+* If the key is held longer than the max dash time, the decoding state will be reset (i.e., current set of dots/dashes will be discarded). 
 
 ## Get the Max Dot Time  #morse-maxdottime
 
@@ -82,7 +112,7 @@ Set the maximum time (in millisecondes) of slience allowed between symbols (dots
 morse.maxBetweenSymbolTime()
 ```
 
-Provides the current maximum time allowed between symbols (dots and dashes) before considering the sequence of dots/dashes completed.  
+Provides the current maximum time allowed between symbols (dots and dashes) before considering the sequence of dots/dashes completed.  When this time is exceeded any preceeding dots and dashes are decoded and ``[morse.onCodeSelected()]`` is executed.
 
 ## Get the Maximum Between Letter Time  #morse-maxbetweenlettertime
 
@@ -90,7 +120,7 @@ Provides the current maximum time allowed between symbols (dots and dashes) befo
 morse.maxBetweenLetterTime()
 ```
 
-Provides the current maximum time before considering the preceeding letters to be completed (before being considered a silence between words or end of transmissions).  When this time is exceeded it will be decoded as a space (` `). 
+Provides the current maximum time before considering the preceeding letters to be completed (i.e., before being considered a silence between words or end of transmissions).  When this time is exceeded ``[morse.onCodeSelected()]`` is executed and the `code` will be a space (` `). 
 
 ## Reset Key timing  #morse-resettiming
 
@@ -98,15 +128,20 @@ Provides the current maximum time before considering the preceeding letters to b
 morse.resetTiming() : void
 ``` 
 
-Reset Timing of keying. May be needed if dot time is changed while in the midst of keying in a symbol. Resetting decoding may also be needed.
+Reset the timing of keying. This ignores any current key up/down activities. 
 
-# Identifying when individual symbols are Keyed In  #morse-onnewsymbol
+A reset may be needed if timing parameters are changed while in the midst of keying in a symbol. Resetting decoding may also be needed.
+
+# Identifying when individual symbols (dots, dashes, silences) are Keyed In  #morse-onnewsymbol
 
 ```sig
 morse.onNewSymbol(handler: (symbol: string) => void)
 ```
 
-The `symbol` will indicate the which symbol has been detected/entered. `.`, `-`, or `` (empty string is silences between dots/dashes), `-` (silence between letters) or ` ` (end of word/sentence/transmission).
+The `symbol` will indicate the which symbol has been detected/entered:
+* Dots and dashes: `.`, `-`
+* The silence between letters: `` (empty string)
+* The silence between words: ` ` (single space)
 
 
 # Decoding  #morse-decoding
@@ -119,7 +154,7 @@ Decoding refers to decoding a sequence of dots, dashes, and silences into letter
 morse.dot() : void
 ``` 
 
-Register that a "dot" (dit) has happened.
+Register that a complete "dot" has happened. 
 
 ## Dash #morse-dash
 
@@ -127,7 +162,7 @@ Register that a "dot" (dit) has happened.
 morse.dash() : void
 ``` 
 
-Register that a "dash" (dah) has happened.
+Register that a complete "dash" has happened.
 
 ## Reset Decoding  #morse-resetdecoding
 
@@ -143,7 +178,10 @@ Reset dash/dot processing. That is, start at the beginning as though nothing had
 morse.silence(kind?: morse.Silence) : void
 ``` 
 
-Register that a silence between things has happened.  `morse.Silence.Small` are "small silences" used between dots and dashes and are ignored.  `morse.Silence.InterLetter` and `morse.Silence.InterWord` are silences between letters (usually take the time of three dots) and words (usually takes the time of seven dots) and indicate that a character has been found / selected.
+Register that a silence between the key being down has happened:
+* ``[morse.Silence.Small]`` is a "small silence" used between dots and dashes and is ignored. 
+* ``[morse.Silence.InterLetter]`` is a silence between letters.  Any existing dots/dashes as decoded. 
+* ``[morse.Silence.InterWord]`` is the silence between words and is decoded as a space. 
 
 ### ~alert
 
@@ -158,11 +196,12 @@ A `morse.Silence.InterLetter` or `morse.Silence.InterWord` is required to detect
 ```sig
 morse.onCodeSelected(handler: (code: string, sequence: string) => void) 
 ``` 
-A code has been selected (following a  `morse.Silence.InterLetter` or a  `morse.Silence.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (?).  `sequence` will be the sequence of dots and dashes in the code.  If there's an end-of-word or end-of-transmission silence (> min letter between letters time), the code will be an underscore (` `) and the sequence will be empty.
+A code has been selected (following a  `morse.Silence.InterLetter` or a  `morse.Silence.InterWord`). A valid code will be represented with a valid Morse character.  An invalid Morse code will be indicated with a code that is a question mark (`?`).  `sequence` will be the sequence of dots and dashes in the code.  If there's an end-of-word or end-of-transmission silence, the code will be a space (` `) and the sequence will be empty.
 
-Note that several codes are unused by traditional Morse code.  In these cases the `code` will be `?` and the `sequence` will indicate the sequence of dots and dashes. 
+Note that several codes are unused by traditional Morse code.  In these cases the `code` will be `?` and the `sequence` will indicate the sequence of dots and dashes. This extension will track the first seven (7) dots/dashes.  Any more than 7 will be ignored. 
 
 Unused codes include:
+* Any sequence of 7 dots/dashes. 
 * Any sequence of 6 dots/dashes. 
 * Four sequences of four symbols: `..--`, `.-.-`, `---.`, `----`
 * And several sequences of 5 symbols:  `...-.`, `..-..`, `..-.-`, `..--.`, `.-...`, `.-..-`, `.-.--`, `.--..`, `.--.-`, `.---.`, `-..--`, `-.-..`, `-.-.-`, `-.--.`, `-.---`, `--..-`, `--.-.`, `--.--`, `---.-`
@@ -173,7 +212,9 @@ Unused codes include:
 morse.peekCode()
 ```
 
-Provide the code described by the currently entered dots and dashes. 
+Provide the code described by the currently entered dots and dashes.  Note that the current code is not compelte until a suitable "silence" has occurred. 
+
+For example, if a single dot was entered, ``[morse.peekCode()]`` would return an `E`, which is represented by a single dot.  If a second dot is entered before any sufficient "silence", it would then return a `O`, which is represented by two dots. Etc.
 
 ## Peek at the current sequence  #morse-peeksequence
 
@@ -181,7 +222,7 @@ Provide the code described by the currently entered dots and dashes.
 morse.peekSequence()
 ```
 
-Provide the sequence of dots and dashes that is currently entered. 
+Provide the sequence of dots and dashes that is currently entered but not yet complete (there hasn't yet been a sufficient silence). 
 
 # Encoding #morse-encoding
 
@@ -193,13 +234,13 @@ Encoding refers to converting letters and spaces to Morse code.
 morse.encode(characters: string) : string 
 ```
 
-The given string will be converted to a represntation of Morse code using dots (.), dashes (-), spaces indicatins gaps between the symbols for a letter, and tabs indicating the gaps between words.
+The given string will be converted to a represntation of Morse code using dots (.), dashes (-), spaces indicating gaps between the symbols for a letter, and underscores indicating the gaps between words.
 
 # Examples
 
 ## Morse Code Trainer
 
-This example can help you learn the "code" part of Morse code without the timing.
+This example can help you learn the "code" part of Morse code without the key timing.
 * Use button A to enter a dot 
 * Use button B to enter a dash 
 * Use button A+B when you are done with a full symbol and the screen will display the symbol you selected. 
@@ -256,6 +297,12 @@ Here's a simple program that also uses the "Clicks" extension to help practice k
 
 The example uses a special form of `showString` to ensure it's shown fast enough 
 to keep up with Morse code entry.  This version of "Show String" isn't available as a block.
+
+### ~
+
+### ~alert
+
+This example requires the Button Clicks extension to detect when button A is pressed (``[morse.keyDown()]``) and released (``[morse.keyUp()]``).
 
 ### ~
 

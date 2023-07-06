@@ -34,7 +34,7 @@ namespace morse {
     let _maxDotTime = 200 // ms 
     let _maxDashTime = 1000 // ms
     let _maxBetweenSymbolsTime = 500 // ms
-    let _maxBetweenLettersTime = 3000 // ms
+    let _maxBetweenLettersTime = 2000 // ms
 
     let keyDownEvent : number = null
     let keyUpEvent : number = null
@@ -140,7 +140,7 @@ namespace morse {
     //% weight=840
     //% inlineInputMode=external
     //% symbolTime.defl=500 symbolTime.min=10 symbolTime.max=5000
-    //% letterTime.defl=1000 letterTime.min=10 letterTime.max=15000
+    //% letterTime.defl=2000 letterTime.min=10 letterTime.max=15000
     export function setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: number) {
         _maxBetweenSymbolsTime = Math.constrain(symbolTime, 1, 5000)
         _maxBetweenLettersTime = Math.constrain(letterTime, _maxBetweenSymbolsTime, 15000)
@@ -247,27 +247,24 @@ namespace morse {
     //% advanced=true
     //% weight=900
     export function silence(kind?: Silence) {
-        let sym = "?"
-        if (symbolHandler != null) {
-            switch(kind) {
-                case Silence.InterLetter:
-                    sym = "-"
-                    break
-                case Silence.InterWord:
-                    sym = " "
-                    break
-                case null:
-                case Silence.Small:
-                    sym = ""
-                    break
-            }
-            symbolHandler(sym)
-        }
 
-        // Ignore small silences
+        // Ignore small silences (between symbols of code)
         if (kind == null || kind == Silence.Small) {
             return;
         }
+
+        if (symbolHandler != null) {
+            switch(kind) {
+                case Silence.InterWord:
+                    symbolHandler(" ")
+                    break
+                case Silence.InterLetter:
+                default:
+                    symbolHandler("")
+                    break
+            }
+        }
+
         // Process code: Send " " for end of word/transmission.
         if (codeSelectHandler != null) {
             if(kind == Silence.InterWord) {
@@ -343,7 +340,7 @@ namespace morse {
 
     /**
      * Encode the given characters to morse code.
-     * @return string of dots, dashes, silences (between chars), # (between words), "?" (invalid character for Morse Code), and newlines (for newlines).
+     * @return string of dots, dashes, silences (between chars), _ (between words), "?" (invalid character for Morse Code), and newlines (for newlines).
      */
     //% blockId=encode block="encode $characters to morse"
     //% group="Encoding"
@@ -354,7 +351,7 @@ namespace morse {
         for(let c of characters) {
             switch(c) {
                 case " ":
-                    result += "#"
+                    result += "_"
                 break;
                 case "\n":
                     result += c
