@@ -396,6 +396,20 @@ morse.setSilenceBetweenSymbolsLettersTimes(
 
 ```
 
+### ~alert
+
+The example uses a special form of `showString` to ensure it's shown fast enough 
+to keep up with Morse code entry.  This version of "Show String" isn't available as a block, so it is placed in a `function` that can be used from blocks.
+
+### ~
+
+### ~alert
+
+This example requires the [Button clicks](https://makecode.microbit.org/pkg/bsiever/microbit-pxt-clicks) extension to detect when button A is pressed (``[morse.keyDown()]``) and released (``[morse.keyUp()]``).
+
+### ~
+
+
 # Acknowledgements 
 
 This was inspired by the work of "grandpaBond" on the Micro:bit Developer Slack Forum, who created this fantastic example to help kids learn Morse Code: [https://makecode.microbit.org/24561-13529-14704-94719](https://makecode.microbit.org/24561-13529-14704-94719).
