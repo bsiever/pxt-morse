@@ -240,7 +240,7 @@ The given string will be converted to a represntation of Morse code using dots (
 
 ## Morse Code Trainer
 
-This example can help you learn the "code" part of Morse code without the key timing.
+[This example](https://makecode.microbit.org/S35338-07015-24700-09611) can help you learn the "code" part of Morse code without the key timing.
 * Use button A to enter a dot 
 * Use button B to enter a dash 
 * Use button A+B when you are done with a full symbol and the screen will display the symbol you selected. 
@@ -285,42 +285,61 @@ input.onButtonPressed(Button.B, function () {
 
 ## Key Timing Trainer
 
-Here's a simple program that also uses the "Clicks" extension to help practice keying.  
-* Button A acts as the key. 
-* The `start` block can be used to change the timing of dots, dashes, and "silences". 
+[This example](https://makecode.microbit.org/S52037-21678-12056-83632) allows you to practice the timing of key presses/releases for Morse code:
+* Button A acts as the key.  The project uses the [Button clicks](https://makecode.microbit.org/pkg/bsiever/microbit-pxt-clicks) to detect when it is pressed down and released. 
+* The `start` block can be used to change the timing of dots, dashes, and "silences".  It's set to the default times.
 * The display will show:
   * A single dot or a dash after successfully keying in a dot or dash. 
-  * A letter / code after a successfully keying a code. 
+  * A letter / code after a successfully keying a code (and waiting the appropriate "silence" time). 
   * An underscore (`_`) for the silence at the conclusion of a word/transmission.
+
+Start practicing by trying the dot and dash times by trying to perfect the timing of individual letters:
+* An "E" is a single dot (".")
+  * Click button A quickly. You should see a dot on the screen.  If you held it too long, a "-" will appear instead. 
+  * If you saw a single dot, following a brief pause you should see "E" appear on the screen.  
+  * After a longer pause an underscore ("_") will appear to indicate the "end of the transmission"
+* An "S" is three dots ("..."). 
+  * Practice entering dots until you can reliably produce an "S". 
+* A "T" is a single dash ("-"). 
+  * Click and briefly hold button A (hold for less than 1 second). You should see a dash on the screen.  If you didn't hold it long enough, you'll see just a dot (".").
+  * Practive entering dashes until you can reliably produce a "T".  
+* An "O" is three dashes ("---"). As before, practive entering dashes until you can reliably enter an "O". 
+* Review the entire [Morse Code](https://en.wikipedia.org/wiki/Morse_code) alphabet and practice keying in entire words or sentences!
+
 
 ### ~alert
 
 The example uses a special form of `showString` to ensure it's shown fast enough 
-to keep up with Morse code entry.  This version of "Show String" isn't available as a block.
+to keep up with Morse code entry.  This version of "Show String" isn't available as a block, so it is placed in a `function` that can be used from blocks.
 
 ### ~
 
 ### ~alert
 
-This example requires the Button Clicks extension to detect when button A is pressed (``[morse.keyDown()]``) and released (``[morse.keyUp()]``).
+This example requires the [Button clicks](https://makecode.microbit.org/pkg/bsiever/microbit-pxt-clicks) extension to detect when button A is pressed (``[morse.keyDown()]``) and released (``[morse.keyUp()]``).
 
 ### ~
 
 ```block
+// Show a string "now" without a delay / scrolling
+function showStringNow (theString: string) {
+    basic.showString(theString, 0)
+}
 morse.onCodeSelected(function (code, sequence) {
     // Make silences visible.
-    if(code == " ") {
+    if (code == " ") {
         code = "_"
     }
     serial.writeLine("Code: " + code)
-    basic.showString(code, 0)
+    showStringNow(code)
 })
 buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
     morse.keyUp()
 })
+// Show dot/dash
 morse.onNewSymbol(function (newSymbol) {
-    serial.writeLine("" + (newSymbol))
-    basic.showString(newSymbol,0)
+    serial.writeLine(newSymbol)
+    showStringNow(newSymbol)
 })
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
     morse.keyDown()
@@ -329,18 +348,30 @@ input.onButtonPressed(Button.B, function () {
     morse.resetTiming()
     morse.resetDecoding()
 })
-morse.setMaxDotDashTimes(200, 1000)
-morse.setSilenceBetweenSymbolsLettersTimes(500, 3000)
+morse.setMaxDotDashTimes(
+200,
+1000
+)
+morse.setSilenceBetweenSymbolsLettersTimes(
+500,
+2000
+)
 
 ```
 
 ## Morse Code Keying Trainer 
 
-The code below can be used to practice keying in Morse code.  It will show the code letter for the current sequence of dots/dashes that were entered with button A.  It will "flash" when the code is completed/accepted. 
+[This example](https://makecode.microbit.org/S13813-53146-89461-03345) can be used to practice keying in Morse code.  It will show the code letter for the current sequence of dots/dashes that were entered with button A.  It will "flash" when the code is completed/accepted (that is, after a long enough silence to indicate the end of the letter). 
+
+For example, after a single dot is entered it will show "E" until either: 1) Another dot/dash occurs or 2) Enough time has elapsed to consider the current letter to be done. If a second "dot" is keyed in before the time is up (now at ".."), it will display an "I". Etc. 
 
 ```block 
+// Show a string "now" without a delay / scrolling
+function showStringNow (theString: string) {
+    basic.showString(theString, 0)
+}
 morse.onCodeSelected(function (code, sequence) {
-    basic.showString(code, 100)
+    showStringNow(code)
     game.addScore(1)
 })
 buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
@@ -348,12 +379,20 @@ buttonClicks.onButtonUp(buttonClicks.AorB.A, function () {
 })
 morse.onNewSymbol(function (newSymbol) {
     if (newSymbol == "-" || newSymbol == ".") {
-        basic.showString(morse.peekCode(), 0)
+        showStringNow(morse.peekCode())
     }
 })
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
     morse.keyDown()
 })
+morse.setMaxDotDashTimes(
+200,
+1000
+)
+morse.setSilenceBetweenSymbolsLettersTimes(
+500,
+2000
+)
 
 ```
 
@@ -373,10 +412,3 @@ for PXT/microbit
 
 <script src="https://makecode.com/gh-pages-embed.js"></script>
 <script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
-
-<!--
-# TODO 
-
-Consider the decoding approach described here: http://greatfractal.com/MorseDecoded.html 
-
--->
