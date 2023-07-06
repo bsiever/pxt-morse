@@ -39,8 +39,8 @@ If the duration of time between  ``[morse.keyDown()]`` and  ``[morse.keyUp()]`` 
 * \(``[morse.maxDotTime()]``...``[morse.maxDashTime()]``], it is considered a successful "dash". 
 * \(``[morse.maxDashTime()]``...], it is considered an invalid key.  Any preceeding dots and dashes are discarded.
 
-If, following a ``[morse.keyUp()]``, there is no ``[morse.keyDown()]`` for more than ``[morse.maxBetweenSymbolTime()]``, any successful dots/dashes are treated as a letter and ``[morse.morse.onNewSymbol()]`` is executed.  
-If, following a ``[morse.keyUp()]``, there is no ``[morse.keyDown()]`` for more than ``[morse.maxBetweenLetterTime()]``, any successful dots/dashes are treated as a letter and ``[morse.morse.onNewSymbol()]`` is executed. The `code` will be a space (`" "`) to indicate the gap between words).
+If, following a ``[morse.keyUp()]``, there is no ``[morse.keyDown()]`` for more than ``[morse.maxBetweenSymbolTime()]``, any successful dots/dashes are treated as a letter and ``[morse.onCodeSelected()]`` is executed.  
+If, following a ``[morse.keyUp()]``, there is no ``[morse.keyDown()]`` for more than ``[morse.maxBetweenLetterTime()]``, any successful dots/dashes are treated as a letter and ``[morse.onCodeSelected()]`` is executed. The `code` will be a space (`" "`) to indicate the gap between words).
 
 By default the timing is comparable to a dit that lasts about 160ms, but requiring an extra long gap between words:
 * A dot is any press that's 1-200ms (~0-0.20 seconds).
@@ -104,7 +104,7 @@ morse.setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: numbe
 Set the maximum time (in millisecondes) of slience allowed between symbols (dots/dashes) and letters of a word. 
 * The `letterTime` will be greather than or equal to the `symbolTime`
 * If the silence exceeds the `symbolTime`, the sequence of dots/dashes will be considered to be compelte and will be decoded. 
-* If the silence exceeds the `letterTime`, it will be considered a "silence" between words (decoded as a space (` `)).
+* If the silence exceeds the `letterTime`, it will be considered a "silence" between words (decoded as a space (`" "`)).
 
 ## Get the Maximum Between Symbol Time  #morse-maxbetweensymboltime
 
@@ -120,7 +120,7 @@ Provides the current maximum time allowed between symbols (dots and dashes) befo
 morse.maxBetweenLetterTime()
 ```
 
-Provides the current maximum time before considering the preceeding letters to be completed (i.e., before being considered a silence between words or end of transmissions).  When this time is exceeded ``[morse.onCodeSelected()]`` is executed and the `code` will be a space (` `). 
+Provides the current maximum time before considering the preceeding letters to be completed (i.e., before being considered a silence between words or end of transmissions).  When this time is exceeded ``[morse.onCodeSelected()]`` is executed and the `code` will be a space (`" "`). 
 
 ## Reset Key timing  #morse-resettiming
 
@@ -141,7 +141,7 @@ morse.onNewSymbol(handler: (symbol: string) => void)
 The `symbol` will indicate the which symbol has been detected/entered:
 * Dots and dashes: `.`, `-`
 * The silence between letters: `` (empty string)
-* The silence between words: ` ` (single space)
+* The silence between words: `" "` (single space)
 
 
 # Decoding  #morse-decoding
@@ -164,14 +164,6 @@ morse.dash() : void
 
 Register that a complete "dash" has happened.
 
-## Reset Decoding  #morse-resetdecoding
-
-```sig
-morse.resetDecoding() : void
-``` 
-
-Reset dash/dot processing. That is, start at the beginning as though nothing had been keyed in.
-
 ## Silence  #morse-silence
 
 ```sig
@@ -179,9 +171,9 @@ morse.silence(kind?: morse.Silence) : void
 ``` 
 
 Register that a silence between the key being down has happened:
-* ``[morse.Silence.Small]`` is a "small silence" used between dots and dashes and is ignored. 
-* ``[morse.Silence.InterLetter]`` is a silence between letters.  Any existing dots/dashes as decoded. 
-* ``[morse.Silence.InterWord]`` is the silence between words and is decoded as a space. 
+* ``[morse.silence(morse.Silence.Small)]`` is a "small silence" used between dots and dashes and is ignored. 
+* ``[morse.silence(morse.Silence.InterLetter)]`` is a silence between letters.  Any existing dots/dashes as decoded. 
+* ``[morse.silence(morse.Silence.InterWord)]`` is the silence between words and is decoded as a space. 
 
 ### ~alert
 
@@ -190,6 +182,15 @@ Register that a silence between the key being down has happened:
 A `morse.Silence.InterLetter` or `morse.Silence.InterWord` is required to detect a letter. 
 
 ### ~
+
+## Reset Decoding  #morse-resetdecoding
+
+```sig
+morse.resetDecoding() : void
+``` 
+
+Reset dash/dot processing. That is, start at the beginning as though nothing had been keyed in.
+
 
 ## On Code Selected  #morse-oncodeselected
 
@@ -236,6 +237,8 @@ morse.encode(characters: string) : string
 
 The given string will be converted to a represntation of Morse code using dots (.), dashes (-), spaces indicating gaps between the symbols for a letter, and underscores indicating the gaps between words.
 
+For example, ``[morse.encode("SOS SOS")]`` would return `"... --- ..._... --- ..."`.
+
 # Examples
 
 ## Morse Code Trainer
@@ -247,7 +250,7 @@ The given string will be converted to a represntation of Morse code using dots (
 
 For example, the code for the letter U is "..-".  To practice entering a "U" you would press button A twice, then button B, then A+B.  The screen should show the "U". 
 
-```block 
+```blocks 
 input.onButtonPressed(Button.A, function () {
     morse.dot()
     basic.showLeds(`
@@ -320,7 +323,7 @@ This example requires the [Button clicks](https://makecode.microbit.org/pkg/bsie
 
 ### ~
 
-```block
+```blocks
 // Show a string "now" without a delay / scrolling
 function showStringNow (theString: string) {
     basic.showString(theString, 0)
@@ -365,7 +368,7 @@ morse.setSilenceBetweenSymbolsLettersTimes(
 
 For example, after a single dot is entered it will show "E" until either: 1) Another dot/dash occurs or 2) Enough time has elapsed to consider the current letter to be done. If a second "dot" is keyed in before the time is up (now at ".."), it will display an "I". Etc. 
 
-```block 
+```blocks 
 // Show a string "now" without a delay / scrolling
 function showStringNow (theString: string) {
     basic.showString(theString, 0)
