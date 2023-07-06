@@ -1,6 +1,6 @@
 {
     "name": "pxt-morse - Copy",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Morse Code Library",
     "license": "MIT",
     "dependencies": {
