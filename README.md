@@ -409,6 +409,15 @@ This example requires the [Button clicks](https://makecode.microbit.org/pkg/bsie
 
 ### ~
 
+# Challenges 
+
+1. Use `radio` extensions to recieve Morse code from remote "keys". 
+2. Combine this with the Bluetooth HID extension (micro:bit v2 only) to create a Morse Code keybaord!
+3. Create a program that uses tones to play the dots/dashes as they are being keyed in. 
+
+# Extras
+
+Here's a fun "tone trainer" to practice decoding Morse code yourself (v2 micro:bit only): [Tone Trainer w/ Voice](https://makecode.microbit.org/S10038-01737-87603-28610). You can modify the `codes` in the `start` to practice just a few Morse codes characters at a time. 
 
 # Acknowledgements 
 
