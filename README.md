@@ -68,10 +68,10 @@ morse.keyUp() : void
 ``` 
 The Morse code key has been released.
 
-## Set Dot and Dash Times / Timing  #morse-setmaxdotdashtimes
+## Set Dot and Dash Times / Timing  #morse-setmaxdurationdotdash
 
 ```sig 
-morse.setMaxDotDashTimes(dotTime: number, dashTime: number) {
+morse.setMaxDurationDotDash(dotTime: number, dashTime: number) {
 ```
 
 Set the maximum time (in milliseconds) of dots and dashes. 
@@ -95,10 +95,10 @@ morse.maxDashTime()
 
 Provides the current maximum dash time. 
 
-## Set Silence Between Symbols Letters Times / Timing  #morse-setsilencebetweensymbolsLetterstimes
+## Set Silence Between Symbols Letters Times / Timing  #morse-setMaxSilenceBetweenSymbolsLetters
 
 ```sig 
-morse.setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: number) 
+morse.setMaxSilenceBetweenSymbolsLetters(symbolTime: number, letterTime: number) 
 ```
 
 Set the maximum time (in millisecondes) of slience allowed between symbols (dots/dashes) and letters of a word. 
@@ -353,11 +353,11 @@ input.onButtonPressed(Button.B, function () {
     morse.resetTiming()
     morse.resetDecoding()
 })
-morse.setMaxDotDashTimes(
+morse.setMaxDurationDotDash(
 200,
 1000
 )
-morse.setSilenceBetweenSymbolsLettersTimes(
+morse.setMaxSilenceBetweenSymbolsLetters(
 500,
 2000
 )
@@ -390,11 +390,11 @@ morse.onNewSymbol(function (newSymbol) {
 buttonClicks.onButtonDown(buttonClicks.AorB.A, function () {
     morse.keyDown()
 })
-morse.setMaxDotDashTimes(
+morse.setMaxDurationDotDash(
 200,
 1000
 )
-morse.setSilenceBetweenSymbolsLettersTimes(
+morse.setMaxSilenceBetweenSymbolsLetters(
 500,
 2000
 )

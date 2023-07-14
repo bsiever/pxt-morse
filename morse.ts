@@ -94,14 +94,14 @@ namespace morse {
      * A dash will be any key hold between 10ms and the max dot time.  A dash will be anything greater than the dot time and less than the max dash time.
      * Values greater than the max dash time will "reset" the state of decoding.
      */
-    //% blockId=setMaxDotDashTimes block="set max dot time to $dotTime and max dash time to $dashTime (ms)" 
+    //% blockId=setMaxDurationDotDash block="set max duration of dot to $dotTime ms and dash $dashTime ms" 
     //% advanced=true
     //% group="Keying"
     //% inlineInputMode=external
     //% weight=870
     //% dotTime.defl=200 dotTime.min=10 dotTime.max=5000
     //% dashTime.defl=1000 dashTime.min=10 dashTime.max=15000
-    export function setMaxDotDashTimes(dotTime: number, dashTime: number) {
+    export function setMaxDurationDotDash(dotTime: number, dashTime: number) {
         // Minimum time of 100ms
         _maxDotTime = Math.constrain(dotTime, 1, 5000)
         _maxDashTime = Math.constrain(dashTime, 2*_maxDotTime, 15000)
@@ -134,14 +134,14 @@ namespace morse {
     /**
      * Set the length of time for a silence events in milliseconds. The time between letters will always be at least the time between symbols.
     */
-    //% blockId=setSilenceBetweenSymbolsLettersTimes block="set max silence between symbols to $symbolTime and max between letters to $letterTime ms$" 
+    //% blockId=setMaxSilenceBetweenSymbolsLetters block="set max silence between symbols to $symbolTime ms and max silence between letters to $letterTime ms" 
     //% advanced=true
     //% group="Keying"
     //% weight=840
     //% inlineInputMode=external
     //% symbolTime.defl=500 symbolTime.min=10 symbolTime.max=5000
     //% letterTime.defl=2000 letterTime.min=10 letterTime.max=15000
-    export function setSilenceBetweenSymbolsLettersTimes(symbolTime: number, letterTime: number) {
+    export function setMaxSilenceBetweenSymbolsLetters(symbolTime: number, letterTime: number) {
         _maxBetweenSymbolsTime = Math.constrain(symbolTime, 1, 5000)
         _maxBetweenLettersTime = Math.constrain(letterTime, _maxBetweenSymbolsTime, 15000)
     }

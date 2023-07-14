@@ -76,8 +76,8 @@ morse.onCodeSelected( function (code: string, sequence: string) {
     }
 })
 
-morse.setMaxDotDashTimes(50, 400)
-morse.setSilenceBetweenSymbolsLettersTimes(400, 800)
+morse.setMaxDurationDotDash(50, 400)
+morse.setMaxSilenceBetweenSymbolsLetters(400, 800)
 
 serial.writeLine("Test 2:")
 let toSend = ".- -... -.-. -.. . ..-. --. .... .. .--- -.- .-.. -- -. --- .--. --.- .-. ... - ..- ...- .-- -..- -.-- --.. ----- .---- ..--- ...-- ....- ..... -.... --... ---.. ----."
