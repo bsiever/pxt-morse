@@ -9,7 +9,7 @@
     "files": [
         "README.md",
         "morse.ts", 
-        "_locales/zh-TW/morse-strings.json"
+        "_locales/zh-tw/morse-strings.json"
     ],
     "testFiles": [
         "test.ts"
