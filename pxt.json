@@ -8,7 +8,8 @@
     },
     "files": [
         "README.md",
-        "morse.ts"
+        "morse.ts", 
+        "_locales/zh-TW/morse-strings.json"
     ],
     "testFiles": [
         "test.ts"
@@ -29,8 +30,5 @@
         "name": "Morse Code",
         "imageUrl": "file:../icon.png",
         "feedbackUrl": "http://siever.info"
-    },
-     "localizedStrings": {
-        "zh-tw": "./strings/zh-tw.json"
     }
 }
