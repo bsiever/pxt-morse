@@ -29,7 +29,7 @@
         "name": "Morse Code",
         "imageUrl": "file:../icon.png",
         "feedbackUrl": "http://siever.info"
-    }
+    },
      "localizedStrings": {
         "zh-tw": "./strings/zh-tw.json"
     }
