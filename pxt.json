@@ -8,7 +8,7 @@
     },
     "files": [
         "README.md",
-        "morse.ts", 
+        "morse.ts",
         "_locales/zh-tw/morse-strings.json"
     ],
     "testFiles": [
@@ -16,7 +16,7 @@
     ],
     "public": true,
     "targetVersions": {
-        "target": "6.0.15",
+        "target": "8.0.15",
         "targetId": "microbit"
     },
     "supportedTargets": [
